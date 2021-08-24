@@ -4,9 +4,10 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import yaml
 from collections import OrderedDict
 from os import path as osp
+
+import yaml
 
 
 def ordered_yaml():

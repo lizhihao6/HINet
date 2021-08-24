@@ -4,10 +4,11 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+from os import path as osp
+
 import cv2
 import numpy as np
 import torch
-from os import path as osp
 from torch.nn import functional as F
 
 from basicsr.data.transforms import mod_crop

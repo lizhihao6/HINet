@@ -10,8 +10,9 @@ import logging
 import math
 import random
 import time
-import torch
 from os import path as osp
+
+import torch
 
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.data.data_sampler import EnlargedSampler
@@ -72,8 +73,8 @@ def init_loggers(opt):
 
     # initialize wandb logger before tensorboard logger to allow proper sync:
     if (opt['logger'].get('wandb')
-            is not None) and (opt['logger']['wandb'].get('project')
-                              is not None) and ('debug' not in opt['name']):
+        is not None) and (opt['logger']['wandb'].get('project')
+                          is not None) and ('debug' not in opt['name']):
         assert opt['logger'].get('use_tb_logger') is True, (
             'should turn on tensorboard when using wandb')
         init_wandb_logger(opt)
@@ -166,7 +167,7 @@ def main():
     if resume_state is None:
         make_exp_dirs(opt)
         if opt['logger'].get('use_tb_logger') and 'debug' not in opt[
-                'name'] and opt['rank'] == 0:
+            'name'] and opt['rank'] == 0:
             mkdir_and_rename(osp.join('tb_logger', opt['name']))
 
     # initialize loggers
@@ -252,7 +253,7 @@ def main():
                 # wheather use uint8 image to compute metrics
                 use_image = opt['val'].get('use_image', True)
                 model.validation(val_loader, current_iter, tb_logger,
-                                 opt['val']['save_img'], rgb2bgr, use_image )
+                                 opt['val']['save_img'], rgb2bgr, use_image)
 
             data_time = time.time()
             iter_time = time.time()

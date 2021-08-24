@@ -5,8 +5,9 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import logging
-import torch
 from os import path as osp
+
+import torch
 
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import create_model

@@ -4,10 +4,11 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import numpy as np
 import random
-import torch
 from pathlib import Path
+
+import numpy as np
+import torch
 from torch.utils import data as data
 
 from basicsr.data.transforms import augment, paired_random_crop
@@ -130,7 +131,7 @@ class REDSDataset(data.Dataset):
         while (start_frame_idx < 0) or (end_frame_idx > 99):
             center_frame_idx = random.randint(0, 99)
             start_frame_idx = (
-                center_frame_idx - self.num_half_frames * interval)
+                    center_frame_idx - self.num_half_frames * interval)
             end_frame_idx = center_frame_idx + self.num_half_frames * interval
         frame_name = f'{center_frame_idx:08d}'
         neighbor_list = list(
@@ -172,7 +173,7 @@ class REDSDataset(data.Dataset):
                     flow_path = f'{clip_name}/{frame_name}_p{i}'
                 else:
                     flow_path = (
-                        self.flow_root / clip_name / f'{frame_name}_p{i}.png')
+                            self.flow_root / clip_name / f'{frame_name}_p{i}.png')
                 img_bytes = self.file_client.get(flow_path, 'flow')
                 cat_flow = imfrombytes(
                     img_bytes, flag='grayscale',
@@ -188,7 +189,7 @@ class REDSDataset(data.Dataset):
                     flow_path = f'{clip_name}/{frame_name}_n{i}'
                 else:
                     flow_path = (
-                        self.flow_root / clip_name / f'{frame_name}_n{i}.png')
+                            self.flow_root / clip_name / f'{frame_name}_n{i}.png')
                 img_bytes = self.file_client.get(flow_path, 'flow')
                 cat_flow = imfrombytes(
                     img_bytes, flag='grayscale',
@@ -208,7 +209,7 @@ class REDSDataset(data.Dataset):
                                              img_gt_path)
         if self.flow_root is not None:
             img_lqs, img_flows = img_lqs[:self.num_frame], img_lqs[self.
-                                                                   num_frame:]
+                                                                       num_frame:]
 
         # augmentation - flip, rotate
         img_lqs.append(img_gt)

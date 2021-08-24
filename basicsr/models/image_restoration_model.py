@@ -5,10 +5,11 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import importlib
-import torch
 from collections import OrderedDict
 from copy import deepcopy
 from os import path as osp
+
+import torch
 from tqdm import tqdm
 
 from basicsr.models.archs import define_network
@@ -34,7 +35,8 @@ class ImageRestorationModel(BaseModel):
         load_path = self.opt['path'].get('pretrain_network_g', None)
         if load_path is not None:
             self.load_network(self.net_g, load_path,
-                              self.opt['path'].get('strict_load_g', True), param_key=self.opt['path'].get('param_key', 'params'))
+                              self.opt['path'].get('strict_load_g', True),
+                              param_key=self.opt['path'].get('param_key', 'params'))
 
         if self.is_train:
             self.init_training_settings()
@@ -72,8 +74,6 @@ class ImageRestorationModel(BaseModel):
         optim_params = []
         optim_params_lowlr = []
 
-
-
         for k, v in self.net_g.named_parameters():
             if v.requires_grad:
                 if k.startswith('module.offsets') or k.startswith('module.dcns'):
@@ -88,8 +88,9 @@ class ImageRestorationModel(BaseModel):
 
         optim_type = train_opt['optim_g'].pop('type')
         if optim_type == 'Adam':
-            self.optimizer_g = torch.optim.Adam([{'params': optim_params}, {'params': optim_params_lowlr, 'lr': train_opt['optim_g']['lr'] * ratio}],
-                                                **train_opt['optim_g'])
+            self.optimizer_g = torch.optim.Adam(
+                [{'params': optim_params}, {'params': optim_params_lowlr, 'lr': train_opt['optim_g']['lr'] * ratio}],
+                **train_opt['optim_g'])
         # elif optim_type == 'SGD':
         #     self.optimizer_g = torch.optim.SGD(optim_params,
         #                                        **train_opt['optim_g'])
@@ -104,7 +105,6 @@ class ImageRestorationModel(BaseModel):
         self.lq = data['lq'].to(self.device)
         if 'gt' in data:
             self.gt = data['gt'].to(self.device)
-        
 
     def transpose(self, t, trans_idx):
         # print('transpose jt .. ', t.size())
@@ -118,7 +118,6 @@ class ImageRestorationModel(BaseModel):
         if trans_idx >= 4:
             t = torch.flip(t, [3])
         return t
-
 
     def grids(self):
         b, c, h, w = self.lq.size()
@@ -135,10 +134,8 @@ class ImageRestorationModel(BaseModel):
         step_j = crop_size if num_col == 1 else math.ceil((w - crop_size) / (num_col - 1) - 1e-8)
         step_i = crop_size if num_row == 1 else math.ceil((h - crop_size) / (num_row - 1) - 1e-8)
 
-
         # print('step_i, stepj', step_i, step_j)
         # exit(0)
-
 
         parts = []
         idxes = []
@@ -152,7 +149,6 @@ class ImageRestorationModel(BaseModel):
             if i + crop_size >= h:
                 i = h - crop_size
                 last_i = True
-
 
             last_j = False
             while j < w and not last_j:
@@ -170,12 +166,11 @@ class ImageRestorationModel(BaseModel):
         if self.opt['val'].get('random_crop_num', 0) > 0:
             for _ in range(self.opt['val'].get('random_crop_num')):
                 import random
-                i = random.randint(0, h-crop_size)
-                j = random.randint(0, w-crop_size)
+                i = random.randint(0, h - crop_size)
+                j = random.randint(0, w - crop_size)
                 trans_idx = random.randint(0, self.opt['val'].get('trans_num', 1) - 1)
                 parts.append(self.transpose(self.lq[:, :, i:i + crop_size, j:j + crop_size], trans_idx))
                 idxes.append({'i': i, 'j': j, 'trans_idx': trans_idx})
-
 
         self.origin_lq = self.lq
         self.lq = torch.cat(parts, dim=0)
@@ -195,12 +190,12 @@ class ImageRestorationModel(BaseModel):
             i = each_idx['i']
             j = each_idx['j']
             trans_idx = each_idx['trans_idx']
-            preds[0, :, i:i + crop_size, j:j + crop_size] += self.transpose_inverse(self.output[cnt, :, :, :].unsqueeze(0), trans_idx).squeeze(0)
+            preds[0, :, i:i + crop_size, j:j + crop_size] += self.transpose_inverse(
+                self.output[cnt, :, :, :].unsqueeze(0), trans_idx).squeeze(0)
             count_mt[0, 0, i:i + crop_size, j:j + crop_size] += 1.
 
         self.output = preds / count_mt
         self.lq = self.origin_lq
-
 
     def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
@@ -241,7 +236,6 @@ class ImageRestorationModel(BaseModel):
         if use_grad_clip:
             torch.nn.utils.clip_grad_norm_(self.net_g.parameters(), 0.01)
         self.optimizer_g.step()
-
 
         self.log_dict = self.reduce_loss_dict(loss_dict)
 
@@ -330,25 +324,25 @@ class ImageRestorationModel(BaseModel):
             torch.cuda.empty_cache()
 
             if save_img:
-                
+
                 if self.opt['is_train']:
-                    
+
                     save_img_path = osp.join(self.opt['path']['visualization'],
                                              img_name,
                                              f'{img_name}_{current_iter}.png')
-                    
+
                     save_gt_img_path = osp.join(self.opt['path']['visualization'],
-                                             img_name,
-                                             f'{img_name}_{current_iter}_gt.png')
+                                                img_name,
+                                                f'{img_name}_{current_iter}_gt.png')
                 else:
-                    
+
                     save_img_path = osp.join(
                         self.opt['path']['visualization'], dataset_name,
                         f'{img_name}.png')
                     save_gt_img_path = osp.join(
                         self.opt['path']['visualization'], dataset_name,
                         f'{img_name}_gt.png')
-                    
+
                 imwrite(sr_img, save_img_path)
                 imwrite(gt_img, save_gt_img_path)
 
@@ -382,7 +376,6 @@ class ImageRestorationModel(BaseModel):
             self._log_validation_metric_values(current_iter, dataset_name,
                                                tb_logger)
         return current_metric
-
 
     def _log_validation_metric_values(self, current_iter, dataset_name,
                                       tb_logger):

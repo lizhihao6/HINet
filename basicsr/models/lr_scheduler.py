@@ -6,6 +6,7 @@
 # ------------------------------------------------------------------------
 import math
 from collections import Counter
+
 from torch.optim.lr_scheduler import _LRScheduler
 
 
@@ -26,8 +27,8 @@ class MultiStepRestartLR(_LRScheduler):
                  optimizer,
                  milestones,
                  gamma=0.1,
-                 restarts=(0, ),
-                 restart_weights=(1, ),
+                 restarts=(0,),
+                 restart_weights=(1,),
                  last_epoch=-1):
         self.milestones = Counter(milestones)
         self.gamma = gamma
@@ -47,9 +48,10 @@ class MultiStepRestartLR(_LRScheduler):
         if self.last_epoch not in self.milestones:
             return [group['lr'] for group in self.optimizer.param_groups]
         return [
-            group['lr'] * self.gamma**self.milestones[self.last_epoch]
+            group['lr'] * self.gamma ** self.milestones[self.last_epoch]
             for group in self.optimizer.param_groups
         ]
+
 
 class LinearLR(_LRScheduler):
     """
@@ -73,6 +75,7 @@ class LinearLR(_LRScheduler):
         weight = (1 - process)
         # print('get lr ', [weight * group['initial_lr'] for group in self.optimizer.param_groups])
         return [weight * group['initial_lr'] for group in self.optimizer.param_groups]
+
 
 class VibrateLR(_LRScheduler):
     """
@@ -116,6 +119,7 @@ class VibrateLR(_LRScheduler):
 
         # print('f {}, T {}, Th {}, t {}, f2 {}'.format(f, T, Th, t, f2))
         return [weight * group['initial_lr'] for group in self.optimizer.param_groups]
+
 
 def get_position_from_periods(iteration, cumulative_period):
     """Get the position from a period list.
@@ -161,7 +165,7 @@ class CosineAnnealingRestartLR(_LRScheduler):
     def __init__(self,
                  optimizer,
                  periods,
-                 restart_weights=(1, ),
+                 restart_weights=(1,),
                  eta_min=0,
                  last_epoch=-1):
         self.periods = periods
@@ -184,6 +188,6 @@ class CosineAnnealingRestartLR(_LRScheduler):
         return [
             self.eta_min + current_weight * 0.5 * (base_lr - self.eta_min) *
             (1 + math.cos(math.pi * (
-                (self.last_epoch - nearest_restart) / current_period)))
+                    (self.last_epoch - nearest_restart) / current_period)))
             for base_lr in self.base_lrs
         ]

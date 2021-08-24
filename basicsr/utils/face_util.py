@@ -4,9 +4,10 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import os
+
 import cv2
 import numpy as np
-import os
 import torch
 from skimage import transform as trans
 
@@ -83,8 +84,8 @@ class FaceRestorationHelper(object):
                 for i in range(len(det_faces)):
                     face_area = (det_faces[i].rect.right() -
                                  det_faces[i].rect.left()) * (
-                                     det_faces[i].rect.bottom() -
-                                     det_faces[i].rect.top())
+                                        det_faces[i].rect.bottom() -
+                                        det_faces[i].rect.top())
                     face_areas.append(face_area)
                 largest_idx = face_areas.index(max(face_areas))
                 self.det_faces = [det_faces[largest_idx]]
@@ -120,8 +121,8 @@ class FaceRestorationHelper(object):
                     for i in range(len(det_face)):
                         face_area = (det_face[i].rect.right() -
                                      det_face[i].rect.left()) * (
-                                         det_face[i].rect.bottom() -
-                                         det_face[i].rect.top())
+                                            det_face[i].rect.bottom() -
+                                            det_face[i].rect.top())
                         face_areas.append(face_area)
                     largest_idx = face_areas.index(max(face_areas))
                     face_rect = det_face[largest_idx].rect
@@ -199,7 +200,7 @@ class FaceRestorationHelper(object):
             inv_restored_remove_border = inv_mask_erosion * inv_restored
             total_face_area = np.sum(inv_mask_erosion) // 3
             # compute the fusion edge based on the area of face
-            w_edge = int(total_face_area**0.5) // 20
+            w_edge = int(total_face_area ** 0.5) // 20
             erosion_radius = w_edge * 2
             inv_mask_center = cv2.erode(
                 inv_mask_erosion,
@@ -208,7 +209,7 @@ class FaceRestorationHelper(object):
             inv_soft_mask = cv2.GaussianBlur(inv_mask_center,
                                              (blur_size + 1, blur_size + 1), 0)
             upsample_img = inv_soft_mask * inv_restored_remove_border + (
-                1 - inv_soft_mask) * upsample_img
+                    1 - inv_soft_mask) * upsample_img
         if self.save_png:
             save_path = save_path.replace('.jpg',
                                           '.png').replace('.jpeg', '.png')

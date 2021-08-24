@@ -5,6 +5,7 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import math
+
 import numpy as np
 import torch
 
@@ -12,8 +13,8 @@ import torch
 def cubic(x):
     """cubic function used for calculate_weights_indices."""
     absx = torch.abs(x)
-    absx2 = absx**2
-    absx3 = absx**3
+    absx2 = absx ** 2
+    absx3 = absx ** 3
     return (1.5 * absx3 - 2.5 * absx2 + 1) * (
         (absx <= 1).type_as(absx)) + (-0.5 * absx3 + 2.5 * absx2 - 4 * absx +
                                       2) * (((absx > 1) *
@@ -169,7 +170,7 @@ def imresize(img, scale, antialiasing=True):
         idx = int(indices_w[i][0])
         for j in range(in_c):
             out_2[j, :, i] = out_1_aug[j, :,
-                                       idx:idx + kernel_width].mv(weights_w[i])
+                             idx:idx + kernel_width].mv(weights_w[i])
 
     if numpy_type:
         out_2 = out_2.numpy().transpose(1, 2, 0)
@@ -270,8 +271,8 @@ def ycbcr2rgb(img):
     out_img = np.matmul(img, [[0.00456621, 0.00456621, 0.00456621],
                               [0, -0.00153632, 0.00791071],
                               [0.00625893, -0.00318811, 0]]) * 255.0 + [
-                                  -222.921, 135.576, -276.836
-                              ]  # noqa: E126
+                  -222.921, 135.576, -276.836
+              ]  # noqa: E126
     out_img = _convert_output_type_range(out_img, img_type)
     return out_img
 
@@ -302,8 +303,8 @@ def ycbcr2bgr(img):
     out_img = np.matmul(img, [[0.00456621, 0.00456621, 0.00456621],
                               [0.00791071, -0.00153632, 0],
                               [0, -0.00318811, 0.00625893]]) * 255.0 + [
-                                  -276.836, 135.576, -222.921
-                              ]  # noqa: E126
+                  -276.836, 135.576, -222.921
+              ]  # noqa: E126
     out_img = _convert_output_type_range(out_img, img_type)
     return out_img
 

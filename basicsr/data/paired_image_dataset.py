@@ -4,17 +4,19 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import os
+
+import numpy as np
+import torch
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
-import torch
-import numpy as np
 
 from basicsr.data.data_util import (paired_paths_from_folder,
                                     paired_paths_from_lmdb,
                                     paired_paths_from_meta_info_file)
 from basicsr.data.transforms import augment, paired_random_crop, random_augmentation, dvs_paired_random_crop
 from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, dvs_padding
-import os
+
 
 class PairedImageDataset(data.Dataset):
     """Paired image dataset for image restoration.
@@ -68,7 +70,7 @@ class PairedImageDataset(data.Dataset):
             self.paths = paired_paths_from_lmdb(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'])
         elif 'meta_info_file' in self.opt and self.opt[
-                'meta_info_file'] is not None:
+            'meta_info_file'] is not None:
             self.paths = paired_paths_from_meta_info_file(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'],
                 self.opt['meta_info_file'], self.filename_tmpl)
@@ -102,7 +104,6 @@ class PairedImageDataset(data.Dataset):
         except:
             raise Exception("lq path {} not working".format(lq_path))
 
-
         # augmentation for training
         if self.opt['phase'] == 'train':
             gt_size = self.opt['gt_size']
@@ -135,6 +136,7 @@ class PairedImageDataset(data.Dataset):
 
     def __len__(self):
         return len(self.paths)
+
 
 class PairedImageDataset_SIDD(data.Dataset):
     """Paired image dataset for image restoration.
@@ -175,7 +177,7 @@ class PairedImageDataset_SIDD(data.Dataset):
         self.io_backend_opt = opt['io_backend']
         self.mean = opt['mean'] if 'mean' in opt else None
         self.std = opt['std'] if 'std' in opt else None
-        
+
         self.gt_folder, self.lq_folder = opt['dataroot_gt'], opt['dataroot_lq']
         if 'filename_tmpl' in opt:
             self.filename_tmpl = opt['filename_tmpl']
@@ -188,7 +190,7 @@ class PairedImageDataset_SIDD(data.Dataset):
             self.paths = paired_paths_from_lmdb(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'])
         elif 'meta_info_file' in self.opt and self.opt[
-                'meta_info_file'] is not None:
+            'meta_info_file'] is not None:
             self.paths = paired_paths_from_meta_info_file(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'],
                 self.opt['meta_info_file'], self.filename_tmpl)
@@ -222,7 +224,6 @@ class PairedImageDataset_SIDD(data.Dataset):
         except:
             raise Exception("lq path {} not working".format(lq_path))
 
-
         # augmentation for training
         if self.opt['phase'] == 'train':
             gt_size = self.opt['gt_size']
@@ -235,7 +236,7 @@ class PairedImageDataset_SIDD(data.Dataset):
             # flip, rotation
             # img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_flip'],
             #                          self.opt['use_rot'])
-            
+
             img_gt, img_lq = random_augmentation(img_gt, img_lq)
         # TODO: color space transform
         # BGR to RGB, HWC to CHW, numpy to tensor
@@ -246,7 +247,7 @@ class PairedImageDataset_SIDD(data.Dataset):
         if self.mean is not None or self.std is not None:
             normalize(img_lq, self.mean, self.std, inplace=True)
             normalize(img_gt, self.mean, self.std, inplace=True)
-        
+
         return {
             'lq': img_lq,
             'gt': img_gt,
@@ -255,7 +256,7 @@ class PairedImageDataset_SIDD(data.Dataset):
         }
 
     def __len__(self):
-        return 32*10000 if self.opt['phase'] == 'train' else len(self.paths)
+        return 32 * 10000 if self.opt['phase'] == 'train' else len(self.paths)
 
 
 class PairedImageDataset_DVS(data.Dataset):
@@ -356,7 +357,7 @@ class PairedImageDataset_DVS(data.Dataset):
         # augmentation for training
         if self.opt['phase'] == 'train':
             assert events.min() > -20 and events.max() < 20, "{} events range is too large".format(events_path)
-            img_events = (events+20)/40
+            img_events = (events + 20) / 40
 
             gt_size = self.opt['gt_size']
             # padding
@@ -369,7 +370,7 @@ class PairedImageDataset_DVS(data.Dataset):
             img_gt, img_lq, img_events = augment([img_gt, img_lq, img_events], self.opt['use_flip'],
                                                  self.opt['use_rot'])
 
-            events = img_events*40-20
+            events = img_events * 40 - 20
 
         # TODO: color space transform
         # BGR to RGB, HWC to CHW, numpy to tensor

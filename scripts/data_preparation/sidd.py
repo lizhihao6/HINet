@@ -4,16 +4,17 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
-import numpy as np
 import os
-import sys
 from multiprocessing import Pool
 from os import path as osp
+
+import cv2
+import numpy as np
 from tqdm import tqdm
 
 from basicsr.utils import scandir_SIDD
 from basicsr.utils.create_lmdb import create_lmdb_for_SIDD
+
 
 def main():
     opt = {}
@@ -28,12 +29,12 @@ def main():
     opt['keywords'] = '_NOISY'
     extract_subimages(opt)
 
-    
     opt['save_folder'] = './datasets/SIDD/train/gt_crops'
     opt['keywords'] = '_GT'
     extract_subimages(opt)
 
     create_lmdb_for_SIDD()
+
 
 def extract_subimages(opt):
     """Crop images to subimages.
@@ -51,7 +52,7 @@ def extract_subimages(opt):
         print(f'mkdir {save_folder} ...')
     else:
         print(f'Folder {save_folder} already exists. Exit.')
-        #sys.exit(1)
+        # sys.exit(1)
 
     img_list = list(scandir_SIDD(input_folder, keywords=opt['keywords'], recursive=True, full_path=True))
 
@@ -87,7 +88,6 @@ def worker(path, opt):
     thresh_size = opt['thresh_size']
     img_name, extension = osp.splitext(osp.basename(path))
 
-    
     img_name = img_name.replace(opt['keywords'], '')
 
     img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
@@ -122,4 +122,4 @@ def worker(path, opt):
 
 if __name__ == '__main__':
     main()
-    #... make sidd to lmdb
+    # ... make sidd to lmdb

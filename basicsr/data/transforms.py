@@ -4,8 +4,9 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import random
+
+import cv2
 
 
 def mod_crop(img, scale):
@@ -89,6 +90,7 @@ def paired_random_crop(img_gts, img_lqs, gt_patch_size, scale, gt_path):
         img_lqs = img_lqs[0]
     return img_gts, img_lqs
 
+
 def dvs_paired_random_crop(img_gts, img_lqs, img_events, gt_patch_size, scale, gt_path):
     """Paired random crop.
 
@@ -141,7 +143,7 @@ def dvs_paired_random_crop(img_gts, img_lqs, img_events, gt_patch_size, scale, g
     ]
 
     # crop corresponding gt patch
-    assert scale==1, "only support same size now"
+    assert scale == 1, "only support same size now"
     top_gt, left_gt = int(top * scale), int(left * scale)
     img_gts = [
         v[top_gt:top_gt + gt_patch_size, left_gt:left_gt + gt_patch_size, ...]
@@ -163,6 +165,7 @@ def dvs_paired_random_crop(img_gts, img_lqs, img_events, gt_patch_size, scale, g
         img_events = img_events[0]
 
     return img_gts, img_lqs, img_events
+
 
 def augment(imgs, hflip=True, rotation=True, flows=None, return_status=False):
     """Augment: horizontal flips OR rotate (0, 90, 180, 270 degrees).
@@ -254,6 +257,7 @@ def img_rotate(img, angle, center=None, scale=1.0):
     rotated_img = cv2.warpAffine(img, matrix, (w, h))
     return rotated_img
 
+
 def data_augmentation(image, mode):
     """
     Performs data augmentation of the input image
@@ -301,10 +305,11 @@ def data_augmentation(image, mode):
 
     return out
 
+
 def random_augmentation(*args):
     out = []
-    if random.randint(0,1) == 1:
-        flag_aug = random.randint(1,7)
+    if random.randint(0, 1) == 1:
+        flag_aug = random.randint(1, 7)
         for data in args:
             out.append(data_augmentation(data, flag_aug).copy())
     else:

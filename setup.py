@@ -4,15 +4,15 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-#!/usr/bin/env python
-
-from setuptools import find_packages, setup
+# !/usr/bin/env python
 
 import os
 import subprocess
 import sys
 import time
+
 import torch
+from setuptools import find_packages, setup
 from torch.utils.cpp_extension import (BuildExtension, CppExtension,
                                        CUDAExtension)
 
@@ -27,7 +27,6 @@ def readme():
 
 
 def get_git_hash():
-
     def _minimal_ext_cmd(cmd):
         # construct minimal environment
         env = {}

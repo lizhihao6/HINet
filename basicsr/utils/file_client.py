@@ -130,7 +130,7 @@ class LmdbBackend(BaseStorageBackend):
                 readonly=readonly,
                 lock=lock,
                 readahead=readahead,
-                map_size=8*1024*10485760,
+                map_size=8 * 1024 * 10485760,
                 # max_readers=1,
                 **kwargs)
 

@@ -5,8 +5,9 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import random
-import torch
 from pathlib import Path
+
+import torch
 from torch.utils import data as data
 
 from basicsr.data.transforms import augment, paired_random_crop

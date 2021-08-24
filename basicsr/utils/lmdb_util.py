@@ -4,11 +4,12 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
-import lmdb
 import sys
 from multiprocessing import Pool
 from os import path as osp
+
+import cv2
+import lmdb
 from tqdm import tqdm
 
 
@@ -180,7 +181,7 @@ class LmdbMaker():
 
     def __init__(self,
                  lmdb_path,
-                 map_size=1024**4,
+                 map_size=1024 ** 4,
                  batch=5000,
                  compress_level=1):
         if not lmdb_path.endswith('.lmdb'):

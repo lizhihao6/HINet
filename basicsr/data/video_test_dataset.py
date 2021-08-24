@@ -5,8 +5,9 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import glob
-import torch
 from os import path as osp
+
+import torch
 from torch.utils import data as data
 
 from basicsr.data.data_util import (duf_downsample, generate_frame_indices,
@@ -63,7 +64,7 @@ class VideoTestDataset(data.Dataset):
         self.file_client = None
         self.io_backend_opt = opt['io_backend']
         assert self.io_backend_opt[
-            'type'] != 'lmdb', 'No need to use lmdb during validation/test.'
+                   'type'] != 'lmdb', 'No need to use lmdb during validation/test.'
 
         logger = get_root_logger()
         logger.info(f'Generate data info for VideoTestDataset - {opt["name"]}')
@@ -196,7 +197,7 @@ class VideoTestVimeo90KDataset(data.Dataset):
         self.file_client = None
         self.io_backend_opt = opt['io_backend']
         assert self.io_backend_opt[
-            'type'] != 'lmdb', 'No need to use lmdb during validation/test.'
+                   'type'] != 'lmdb', 'No need to use lmdb during validation/test.'
 
         logger = get_root_logger()
         logger.info(f'Generate data info for VideoTestDataset - {opt["name"]}')

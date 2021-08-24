@@ -9,6 +9,7 @@
 import functools
 import os
 import subprocess
+
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -80,7 +81,6 @@ def get_dist_info():
 
 
 def master_only(func):
-
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         rank, _ = get_dist_info()

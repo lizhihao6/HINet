@@ -4,10 +4,10 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import numpy as np
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
-import numpy as np
 
 from basicsr.models.losses.loss_util import weighted_loss
 
@@ -58,6 +58,7 @@ class L1Loss(nn.Module):
         return self.loss_weight * l1_loss(
             pred, target, weight, reduction=self.reduction)
 
+
 class MSELoss(nn.Module):
     """MSE (L2) loss.
 
@@ -87,6 +88,7 @@ class MSELoss(nn.Module):
         return self.loss_weight * mse_loss(
             pred, target, weight, reduction=self.reduction)
 
+
 class PSNRLoss(nn.Module):
 
     def __init__(self, loss_weight=1.0, reduction='mean', toY=False):
@@ -113,4 +115,3 @@ class PSNRLoss(nn.Module):
         assert len(pred.size()) == 4
 
         return self.loss_weight * self.scale * torch.log(((pred - target) ** 2).mean(dim=(1, 2, 3)) + 1e-8).mean()
-

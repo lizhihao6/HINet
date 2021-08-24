@@ -5,13 +5,13 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import math
+
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
 from torch.nn import init as init
 from torch.nn.modules.batchnorm import _BatchNorm
 
-from basicsr.utils import get_root_logger
 
 # try:
 #     from basicsr.models.ops.dcn import (ModulatedDeformConvPack,
@@ -225,13 +225,12 @@ def pixel_unshuffle(x, scale):
         Tensor: the pixel unshuffled feature.
     """
     b, c, hh, hw = x.size()
-    out_channel = c * (scale**2)
+    out_channel = c * (scale ** 2)
     assert hh % scale == 0 and hw % scale == 0
     h = hh // scale
     w = hw // scale
     x_view = x.view(b, c, h, scale, w, scale)
     return x_view.permute(0, 1, 3, 5, 2, 4).reshape(b, out_channel, h, w)
-
 
 # class DCNv2Pack(ModulatedDeformConvPack):
 #     """Modulated deformable conv for deformable alignment.

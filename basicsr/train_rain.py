@@ -10,8 +10,9 @@ import logging
 import math
 import random
 import time
-import torch
 from os import path as osp
+
+import torch
 
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.data.data_sampler import EnlargedSampler
@@ -71,8 +72,8 @@ def init_loggers(opt):
 
     # initialize wandb logger before tensorboard logger to allow proper sync:
     if (opt['logger'].get('wandb')
-            is not None) and (opt['logger']['wandb'].get('project')
-                              is not None) and ('debug' not in opt['name']):
+        is not None) and (opt['logger']['wandb'].get('project')
+                          is not None) and ('debug' not in opt['name']):
         assert opt['logger'].get('use_tb_logger') is True, (
             'should turn on tensorboard when using wandb')
         init_wandb_logger(opt)
@@ -125,7 +126,6 @@ def create_train_val_dataloader(opt, logger):
                 dataset_opt['dataroot_lq'] = os.path.join('./datasets/Rain13k/test', name, 'input')
                 dataset_opt['io_backend'] = {'type': 'disk'}
 
-
                 val_set = create_dataset(dataset_opt)
                 val_loader = create_dataloader(
                     val_set,
@@ -152,7 +152,7 @@ def main():
     torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
 
-    #automatic resume ..
+    # automatic resume ..
     state_folder_path = 'experiments/{}/training_states/'.format(opt['name'])
     import os
     try:
@@ -179,7 +179,7 @@ def main():
     if resume_state is None:
         make_exp_dirs(opt)
         if opt['logger'].get('use_tb_logger') and 'debug' not in opt[
-                'name'] and opt['rank'] == 0:
+            'name'] and opt['rank'] == 0:
             mkdir_and_rename(osp.join('tb_logger', opt['name']))
 
     # initialize loggers
@@ -268,13 +268,14 @@ def main():
                 metric = 0.
                 for val_loader in val_loaders:
                     metric += model.validation(val_loader, current_iter, tb_logger,
-                                     opt['val']['save_img'])
+                                               opt['val']['save_img'])
                     cnt += 1
                 if metric > 0:
                     if metric / cnt > best_psnr:
                         best_psnr = metric / cnt
                         best_iter = current_iter
-                    print('average psnr: {:.4f}, ... best: {:.4f}, best iter: {}'.format(metric/cnt, best_psnr, best_iter))
+                    print('average psnr: {:.4f}, ... best: {:.4f}, best iter: {}'.format(metric / cnt, best_psnr,
+                                                                                         best_iter))
 
             data_time = time.time()
             iter_time = time.time()

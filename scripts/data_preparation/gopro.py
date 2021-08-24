@@ -4,16 +4,18 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
-import numpy as np
 import os
 import sys
 from multiprocessing import Pool
 from os import path as osp
+
+import cv2
+import numpy as np
 from tqdm import tqdm
 
 from basicsr.utils import scandir
 from basicsr.utils.create_lmdb import create_lmdb_for_gopro
+
 
 def main():
     opt = {}
@@ -134,7 +136,7 @@ def worker(path, opt):
                     [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
             else:
                 np.save(osp.join(opt['save_folder'],
-                             f'{img_name}_s{index:03d}{extension}'), cropped_img)
+                                 f'{img_name}_s{index:03d}{extension}'), cropped_img)
     process_info = f'Processing {img_name} ...'
     return process_info
 
