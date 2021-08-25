@@ -12,10 +12,14 @@ oss cp s3://lzh-share/models/DVS_HINet-GoPro.pth ./experiments/pretrained_models
 # install v2e
 cd ~ && git clone https://github.com/lizhihao6/v2e.git
 ln -s ~/v2e .v2e
+cd .v2e && pip install -r requirements.txt && python setup.py develop && cd ../
 # download .v2e/.pretrain/SuperSloMo39.ckpt 
 # from https://drive.google.com/u/0/uc?id=17QSN207h05S_b2ndXjLrqPbBTnYIl0Vb&export=download
 # or
 oss cp s3://lzh-share/models/SuperSloMo39.ckpt ./.v2e/.pretrain/SuperSloMo39.ckpt
+!!! remember to test v2e before generate events
+# test code
+# download .v2e/input/tennis.mov from https://drive.google.com/file/d/1dNUXJGlpEM51UVYH4-ZInN9pf0bHGgT_/view
 
 # use rlanuch multigpus
 echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-failure -P 1 --preemptible=no '" >> ~/.zshrc

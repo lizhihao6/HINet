@@ -14,7 +14,7 @@ FPS = 120
 SIZE = (1280, 720)
 GPUS = 8
 
-COMMAND = "python {}/v2e.py " \
+COMMAND = "python3 {}/v2e.py " \
           "-i %(input)s " \
           "-o /tmp/output/$(date) " \
           "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution " \
