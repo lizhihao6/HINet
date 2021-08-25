@@ -5,9 +5,9 @@ import cv2
 import numpy as np
 from tqdm import trange
 
-GOPRO_ORI_PATH = "/shared/GOPRO_Large/"
-GOPRO_PATH = "/shared/GOPRO/"
-V2E_PATH = "/lzh/Project/DVS/v2e"
+GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
+GOPRO_PATH = "./datasets/GoPro/"
+V2E_PATH = "./.v2e"
 SLOMO_CHECKPOINT = "{}/input/SuperSloMo39.ckpt".format(V2E_PATH)
 POS_THRES, NEG_THRES = .15, .15
 FPS = 120
