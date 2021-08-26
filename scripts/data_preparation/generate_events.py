@@ -8,7 +8,7 @@ from tqdm import trange
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
 GOPRO_PATH = "./datasets/GoPro/"
 V2E_PATH = "./.v2e"
-SLOMO_CHECKPOINT = "{}/input/SuperSloMo39.ckpt".format(V2E_PATH)
+SLOMO_CHECKPOINT = "{}/.pretrain/SuperSloMo39.ckpt".format(V2E_PATH)
 POS_THRES, NEG_THRES = .15, .15
 FPS = 120
 SIZE = (1280, 720)
