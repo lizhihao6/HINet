@@ -3,13 +3,14 @@ import os
 
 import cv2
 import numpy as np
+from imageio import imread, imwrite
 from tqdm import trange
 
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
 GOPRO_PATH = "./datasets/GoPro/"
 V2E_PATH = "./.v2e"
 SLOMO_CHECKPOINT = "{}/.pretrain/SuperSloMo39.ckpt".format(V2E_PATH)
-POS_THRES, NEG_THRES = .2, .2 # use v2e --dvs_params clean will overwrite the --pos_thres and --neg_thres to .2
+POS_THRES, NEG_THRES = .2, .2  # use v2e --dvs_params clean will overwrite the --pos_thres and --neg_thres to .2
 FPS = 120
 SIZE = (1280, 720)
 GPUS = 8
@@ -48,6 +49,35 @@ def avi_to_events(avi_path, save_path):
     np.save(save_path.replace(".txt", ".npy"), events)
 
 
+def events_to_im(events_path, im_num, blurred_im_path, save_path):
+    assert im_num % 2 != 0, "im_num should be odd"
+    blurred_im = imread(blurred_im_path).astype(np.float32) / 255.
+    linear_blurred_im = np.power(blurred_im, 2.2)
+    events = [np.zeros_like(linear_blurred_im) for _ in range(im_num - 1)]
+    yuv = np.array([0.299, 0.587, 0.114]).astype(np.float32)
+    diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
+    with open(events_path, "r+") as f:
+        lines = [i for i in f.readlines() if not i.startswith("#")]
+    for l in lines:
+        _l = [float(i) for i in l.split("\n")[0].split(" ")]
+        t, x, y, p = _l[0], int(_l[1]), int(_l[2]), int(_l[3])
+        if t > diff * (im_num - 1):
+            continue
+        start_id = 0 if t < half_time else np.floor(t / diff)
+        stop_id = np.ceil(t / diff) if t < half_time else im_num - 1
+        for e in events[start_id:stop_id]:
+            p = -p if t < half_time else p
+            if p > 0:
+                e[y, x] += POS_THRES * yuv
+            else:
+                e[y, x] -= NEG_THRES * yuv
+
+    events = np.concatenate([np.exp(e)[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
+    assert events.shape == linear_blurred_im.shape, "events shape is consistent with blurred image shape"
+    sharpe_image = np.power(np.clip(linear_blurred_im / events, 0, 1), 1 / 2.2)
+    imwrite(save_path, sharpe_image)
+
+
 def convert(prefix, name, show_bar):
     assert prefix in ["train", "test"]
     ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]
@@ -69,8 +99,11 @@ def convert(prefix, name, show_bar):
                     ori_ids[i * steps:i * steps + steps]]
         avi_path = os.path.join(save_dir, "{}-".format(name) + "%06d.avi" % save_id)
         events_path = avi_path.replace(".avi", ".txt")
+        blurred_im_path = os.path.join(GOPRO_PATH, prefix, "input", name+"-"+"%06d.png" % save_id)
+        init_sharp_im_path = avi_path.replace(".avi", ".png")
         ims_to_avi(im_paths, avi_path)
         avi_to_events(avi_path, events_path)
+        events_to_im(events_path, steps, blurred_im_path, init_sharp_im_path)
 
 
 if __name__ == '__main__':
