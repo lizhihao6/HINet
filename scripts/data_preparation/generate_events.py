@@ -9,7 +9,7 @@ GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
 GOPRO_PATH = "./datasets/GoPro/"
 V2E_PATH = "./.v2e"
 SLOMO_CHECKPOINT = "{}/.pretrain/SuperSloMo39.ckpt".format(V2E_PATH)
-POS_THRES, NEG_THRES = .15, .15
+POS_THRES, NEG_THRES = .2, .2 # use v2e --dvs_params clean will overwrite the --pos_thres and --neg_thres to .2
 FPS = 120
 SIZE = (1280, 720)
 GPUS = 8
@@ -31,8 +31,9 @@ def ims_to_avi(im_paths, save_path):
     out.release()
 
 
-def avi_to_events(avi_path, save_path, idx):
-    cmd = "CUDA_VISIBLE_DEVICES={} ".format(idx % GPUS) + COMMAND % {'input': avi_path, 'output': save_path}
+def avi_to_events(avi_path, save_path):
+    save_path = os.path.join(os.getcwd(), save_path)
+    cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPUS) + COMMAND % {'input': avi_path, 'output': save_path}
     os.system(cmd)
     events = np.zeros((SIZE[1], SIZE[0])).astype(np.float32)
     with open(save_path, "r+") as f:
@@ -47,7 +48,7 @@ def avi_to_events(avi_path, save_path, idx):
     np.save(save_path.replace(".txt", ".npy"), events)
 
 
-def convert(prefix, name, show_bar, idx):
+def convert(prefix, name, show_bar):
     assert prefix in ["train", "test"]
     ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]
     tar_ids = [int(float(str(s)[len(name + "-"):-len(".png")])) for s in
@@ -69,7 +70,7 @@ def convert(prefix, name, show_bar, idx):
         avi_path = os.path.join(save_dir, "{}-".format(name) + "%06d.avi" % save_id)
         events_path = avi_path.replace(".avi", ".txt")
         ims_to_avi(im_paths, avi_path)
-        avi_to_events(avi_path, events_path, idx)
+        avi_to_events(avi_path, events_path)
 
 
 if __name__ == '__main__':
@@ -83,5 +84,5 @@ if __name__ == '__main__':
         if i % num_cores == 0:
             params[i][2] = True
 
-    results = [pool.apply_async(convert, args=(t[0], t[1], t[2], i)) for i, t in enumerate(params)]
+    results = [pool.apply_async(convert, args=(t[0], t[1], t[2])) for t in params]
     results = [p.get() for p in results]
