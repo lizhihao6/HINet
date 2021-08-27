@@ -19,7 +19,7 @@ GPUS = 8
 COMMAND = "python3 {}/v2e.py " \
           "-i %(input)s " \
           "-o /tmp/output/$(date) " \
-          "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution timestamp_resolution=.001 " \
+          "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params clean --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview " \
           "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT)
