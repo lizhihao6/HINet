@@ -56,8 +56,10 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
         t, x, y, p = _l[0], int(_l[1]), int(_l[2]), int(_l[3])
         if t > diff * (im_num - 1):
             continue
-        start_id = 0 if t < half_time else int(np.floor(t / diff))
-        stop_id = int(np.ceil(t / diff)) if t < half_time else im_num - 1
+        if t < half_time:
+            start_id, stop_id = 0, int(np.ceil(t / diff))
+        else:
+            start_id, stop_id = int(np.floor(t / diff)), im_num-1
         for e in range(start_id, stop_id):
             stack_events[p, y, x] += 1
             _p = -p if t < half_time else p
