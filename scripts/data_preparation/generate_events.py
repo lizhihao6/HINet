@@ -37,27 +37,17 @@ def avi_to_events(avi_path, save_path):
     save_path = os.path.join(os.getcwd(), save_path)
     cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPUS) + COMMAND % {'input': avi_path, 'output': save_path}
     os.system(cmd)
-    events = np.zeros((SIZE[1], SIZE[0])).astype(np.float32)
-    with open(save_path, "r+") as f:
-        lines = [i for i in f.readlines() if not i.startswith("#")]
-    for l in lines:
-        _l = [int(float(i)) for i in l.split("\n")[0].split(" ")[1:]]
-        x, y, p = _l[0], _l[1], _l[2]
-        if p > 0:
-            events[y, x] += POS_THRES
-        else:
-            events[y, x] -= NEG_THRES
-    np.save(save_path.replace(".txt", ".npy"), events)
 
 
 def events_to_im(events_path, im_num, blurred_im_path, save_path):
     assert im_num % 2 != 0, "im_num should be odd"
     blurred_im = imread(blurred_im_path).astype(np.float32) / 255.
     linear_blurred_im = np.power(blurred_im, 2.2)
-    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).reshape([1, 1, 3])
-    y_blurred_im = y_blurred_im.sum(2)*255.+16.
+    y_blurred_im = linear_blurred_im * np.array([0.183, 0.614, 0.0624], dtype=np.float32).reshape([1, 1, 3])
+    y_blurred_im = y_blurred_im.sum(2) * 255. + 16.
 
     events = [np.zeros_like(y_blurred_im) for _ in range(im_num - 1)]
+    stack_events = np.zeros((SIZE[1], SIZE[0])).astype(np.float32)
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
         lines = [i for i in f.readlines() if not i.startswith("#")]
@@ -69,6 +59,10 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
         start_id = 0 if t < half_time else int(np.floor(t / diff))
         stop_id = int(np.ceil(t / diff)) if t < half_time else im_num - 1
         for e in events[start_id:stop_id]:
+            if p > 0:
+                stack_events += POS_THRES
+            else:
+                stack_events -= NEG_THRES
             _p = -p if t < half_time else p
             if _p > 0:
                 e[y, x] += POS_THRES
@@ -78,8 +72,9 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     events = np.concatenate([np.exp(e)[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
     assert events.shape == y_blurred_im.shape, "events shape is consistent with blurred image shape"
     y_sharp_im = y_blurred_im / events
-    y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235)/255., 1/2.2)*255.
+    y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235) / 255., 1 / 2.2) * 255.
     imwrite(save_path, y_sharp_im.astype(np.uint8))
+    np.save(save_path.replace(".png", ".npy"), stack_events)
 
 
 def convert(prefix, name, show_bar):
@@ -103,7 +98,7 @@ def convert(prefix, name, show_bar):
                     ori_ids[i * steps:i * steps + steps]]
         avi_path = os.path.join(save_dir, "{}-".format(name) + "%06d.avi" % save_id)
         events_path = avi_path.replace(".avi", ".txt")
-        blurred_im_path = os.path.join(GOPRO_PATH, prefix, "input", name+"-"+"%06d.png" % save_id)
+        blurred_im_path = os.path.join(GOPRO_PATH, prefix, "input", name + "-" + "%06d.png" % save_id)
         init_sharp_im_path = avi_path.replace(".avi", ".png")
         ims_to_avi(im_paths, avi_path)
         avi_to_events(avi_path, events_path)
