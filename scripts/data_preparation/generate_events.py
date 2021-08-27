@@ -47,7 +47,7 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     y_blurred_im = y_blurred_im.sum(2) * 255. + 16.
 
     events = [np.zeros_like(y_blurred_im) for _ in range(im_num - 1)]
-    stack_events = np.zeros((SIZE[1], SIZE[0])).astype(np.float32)
+    stack_events = np.zeros_like(y_blurred_im)
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
         lines = [i for i in f.readlines() if not i.startswith("#")]
