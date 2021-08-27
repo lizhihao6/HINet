@@ -54,7 +54,8 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     assert im_num % 2 != 0, "im_num should be odd"
     blurred_im = imread(blurred_im_path).astype(np.float32) / 255.
     linear_blurred_im = np.power(blurred_im, 2.2)
-    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).sum(2)*255.+16.
+    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).view([1, 1, 3])
+    y_blurred_im = y_blurred_im.sum(2)*255.+16.
     lin_log_blurred_im = np.where(y_blurred_im<20, y_blurred_im*np.log(20)/20., np.log(y_blurred_im))
     lin_log_blurred_im = np.round(lin_log_blurred_im*1e8)/1e8
 
