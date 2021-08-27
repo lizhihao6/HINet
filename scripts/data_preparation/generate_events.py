@@ -78,7 +78,7 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     events = np.concatenate([np.exp(e)[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
     assert events.shape == y_blurred_im.shape, "events shape is consistent with blurred image shape"
     y_sharp_im = y_blurred_im / events
-    y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235)/255., 1/2.2)
+    y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235)/255., 1/2.2)*255.
     imwrite(save_path, y_sharp_im.astype(np.uint8))
 
 
