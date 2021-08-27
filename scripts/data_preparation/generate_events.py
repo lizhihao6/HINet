@@ -46,8 +46,8 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     y_blurred_im = linear_blurred_im * np.array([0.183, 0.614, 0.0624], dtype=np.float32).reshape([1, 1, 3])
     y_blurred_im = y_blurred_im.sum(2) * 255. + 16.
 
-    events = np.zeros([im_num-1, y_blurred_im.shape[0], y_blurred_im.shape[1]])
-    stack_events = np.zeros_like(y_blurred_im)
+    events = np.zeros([im_num-1, 2, y_blurred_im.shape[0], y_blurred_im.shape[1]]).astype(np.uint16)
+    stack_events = np.zeros([2, y_blurred_im.shape[0], y_blurred_im.shape[1]]).astype(np.uint16)
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
         lines = [i for i in f.readlines() if not i.startswith("#")]
@@ -59,17 +59,13 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
         start_id = 0 if t < half_time else int(np.floor(t / diff))
         stop_id = int(np.ceil(t / diff)) if t < half_time else im_num - 1
         for e in range(start_id, stop_id):
-            if p > 0:
-                stack_events += POS_THRES
-            else:
-                stack_events -= NEG_THRES
+            stack_events[p, y, x] += 1
             _p = -p if t < half_time else p
-            if _p > 0:
-                events[e, y, x] += POS_THRES
-            else:
-                events[e, y, x] -= NEG_THRES
-
-    events = np.exp(e).sum(0) / (im_num - 1)
+            events[e, _p, y, x] += 1
+    stack_events, events = stack_events.astype(np.float32), events.astype(np.float32)
+    stack_events = stack_events[1]*POS_THRES - stack_events[0]*NEG_THRES
+    events = events[:, 1]*POS_THRES - events[:, 0]*NEG_THRES
+    events = np.exp(events).sum(0) / (im_num - 1)
     assert events.shape == y_blurred_im.shape, "events shape is consistent with blurred image shape"
     y_sharp_im = y_blurred_im / events
     y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235) / 255., 1 / 2.2) * 255.
