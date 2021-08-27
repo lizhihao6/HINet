@@ -54,12 +54,10 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     assert im_num % 2 != 0, "im_num should be odd"
     blurred_im = imread(blurred_im_path).astype(np.float32) / 255.
     linear_blurred_im = np.power(blurred_im, 2.2)
-    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).view([1, 1, 3])
+    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).reshape([1, 1, 3])
     y_blurred_im = y_blurred_im.sum(2)*255.+16.
-    lin_log_blurred_im = np.where(y_blurred_im<20, y_blurred_im*np.log(20)/20., np.log(y_blurred_im))
-    lin_log_blurred_im = np.round(lin_log_blurred_im*1e8)/1e8
 
-    events = [np.zeros_like(lin_log_blurred_im) for _ in range(im_num - 1)]
+    events = [np.zeros_like(y_blurred_im) for _ in range(im_num - 1)]
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
         lines = [i for i in f.readlines() if not i.startswith("#")]
@@ -68,8 +66,8 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
         t, x, y, p = _l[0], int(_l[1]), int(_l[2]), int(_l[3])
         if t > diff * (im_num - 1):
             continue
-        start_id = 0 if t < half_time else np.floor(t / diff)
-        stop_id = np.ceil(t / diff) if t < half_time else im_num - 1
+        start_id = 0 if t < half_time else int(np.floor(t / diff))
+        stop_id = int(np.ceil(t / diff)) if t < half_time else im_num - 1
         for e in events[start_id:stop_id]:
             _p = -p if t < half_time else p
             if _p > 0:
@@ -77,13 +75,11 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
             else:
                 e[y, x] -= NEG_THRES
 
-    events = np.concatenate([e[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
-    assert events.shape == lin_log_blurred_im.shape, "events shape is consistent with blurred image shape"
-    lin_log_sharp_im = lin_log_blurred_im / events
-    y_sharp_im = np.where(lin_log_sharp_im<np.log(20.), lin_log_sharp_im*20/np.log(20.), np.exp(lin_log_sharp_im))
-    y_sharp_im = np.clip(y_sharp_im, 16, 235)
-    gray_sharp_im = np.exp(y_sharp_im/255., 1/2.2)*255.
-    imwrite(save_path, gray_sharp_im.astype(np.uint8))
+    events = np.concatenate([np.exp(e)[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
+    assert events.shape == y_blurred_im.shape, "events shape is consistent with blurred image shape"
+    y_sharp_im = y_blurred_im / events
+    y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235)/255., 1/2.2)
+    imwrite(save_path, y_sharp_im.astype(np.uint8))
 
 
 def convert(prefix, name, show_bar):
