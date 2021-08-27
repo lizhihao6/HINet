@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import os
+import sys
 
 import cv2
 import numpy as np
@@ -53,8 +54,11 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     assert im_num % 2 != 0, "im_num should be odd"
     blurred_im = imread(blurred_im_path).astype(np.float32) / 255.
     linear_blurred_im = np.power(blurred_im, 2.2)
-    events = [np.zeros_like(linear_blurred_im) for _ in range(im_num - 1)]
-    yuv = np.array([0.299, 0.587, 0.114]).astype(np.float32)
+    y_blurred_im = linear_blurred_im*np.array([0.183, 0.614, 0.0624], dtype=np.float32).sum(2)*255.+16.
+    lin_log_blurred_im = np.where(y_blurred_im<20, y_blurred_im*np.log(20)/20., np.log(y_blurred_im))
+    lin_log_blurred_im = np.round(lin_log_blurred_im*1e8)/1e8
+
+    events = [np.zeros_like(lin_log_blurred_im) for _ in range(im_num - 1)]
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
         lines = [i for i in f.readlines() if not i.startswith("#")]
@@ -66,16 +70,19 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
         start_id = 0 if t < half_time else np.floor(t / diff)
         stop_id = np.ceil(t / diff) if t < half_time else im_num - 1
         for e in events[start_id:stop_id]:
-            p = -p if t < half_time else p
-            if p > 0:
-                e[y, x] += POS_THRES * yuv
+            _p = -p if t < half_time else p
+            if _p > 0:
+                e[y, x] += POS_THRES
             else:
-                e[y, x] -= NEG_THRES * yuv
+                e[y, x] -= NEG_THRES
 
-    events = np.concatenate([np.exp(e)[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
-    assert events.shape == linear_blurred_im.shape, "events shape is consistent with blurred image shape"
-    sharpe_image = np.power(np.clip(linear_blurred_im / events, 0, 1), 1 / 2.2)
-    imwrite(save_path, sharpe_image)
+    events = np.concatenate([e[np.newaxis, ...] for e in events], axis=0).sum(0) / (im_num - 1)
+    assert events.shape == lin_log_blurred_im.shape, "events shape is consistent with blurred image shape"
+    lin_log_sharp_im = lin_log_blurred_im / events
+    y_sharp_im = np.where(lin_log_sharp_im<np.log(20.), lin_log_sharp_im*20/np.log(20.), np.exp(lin_log_sharp_im))
+    y_sharp_im = np.clip(y_sharp_im, 16, 235)
+    gray_sharp_im = np.exp(y_sharp_im/255., 1/2.2)*255.
+    imwrite(save_path, gray_sharp_im.astype(np.uint8))
 
 
 def convert(prefix, name, show_bar):
@@ -90,7 +97,7 @@ def convert(prefix, name, show_bar):
     steps = len(ori_ids) // len(tar_ids)
     assert len(ori_ids) == len(tar_ids) * steps, (prefix, name, len(ori_ids), len(tar_ids))
     if show_bar:
-        iter = trange(len(tar_ids))
+        iter = trange(len(tar_ids), file=sys.stdout)
     else:
         iter = range(len(tar_ids))
     for i in iter:
