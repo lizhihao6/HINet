@@ -68,7 +68,7 @@ def events_to_im(events_path, im_num, blurred_im_path, save_path):
     stack_events = stack_events[1]*POS_THRES - stack_events[0]*NEG_THRES
     events = events[:, 1]*POS_THRES - events[:, 0]*NEG_THRES
     events = np.exp(events).sum(0) / (im_num - 1)
-    assert events.shape == y_blurred_im.shape, "events shape is consistent with blurred image shape"
+    assert events.shape == y_blurred_im.shape, "events shape should be consistent with blurred image shape"
     y_sharp_im = y_blurred_im / events
     y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235) / 255., 1 / 2.2) * 255.
     imwrite(save_path, y_sharp_im.astype(np.uint8))
