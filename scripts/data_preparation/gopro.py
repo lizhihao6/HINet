@@ -73,7 +73,7 @@ def extract_subimages(opt):
         print(f'Folder {save_folder} already exists. Exit.')
         sys.exit(1)
 
-    img_list = list(scandir(input_folder, suffix=opt['suffix'] full_path=True))
+    img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
 
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])
