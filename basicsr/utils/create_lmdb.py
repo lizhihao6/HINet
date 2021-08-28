@@ -63,6 +63,12 @@ def create_lmdb_for_gopro():
     img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
 
+    folder_path = './datasets/GoPro/train/events_crops'
+    lmdb_path = './datasets/GoPro/train/events_crops.lmdb'
+
+    img_path_list, keys = prepare_keys(folder_path, 'png')
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
     folder_path = './datasets/GoPro/test/target'
     lmdb_path = './datasets/GoPro/test/target.lmdb'
 
@@ -71,6 +77,12 @@ def create_lmdb_for_gopro():
 
     folder_path = './datasets/GoPro/test/input'
     lmdb_path = './datasets/GoPro/test/input.lmdb'
+
+    img_path_list, keys = prepare_keys(folder_path, 'png')
+    make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
+    folder_path = './datasets/GoPro/test/events'
+    lmdb_path = './datasets/GoPro/test/events.lmdb'
 
     img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)

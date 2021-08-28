@@ -21,6 +21,7 @@ def main():
     opt = {}
     opt['n_thread'] = 40
     opt['compression_level'] = 3
+    opt['suffix'] = "png"
 
     opt['input_folder'] = './datasets/GoPro/train/input'
     opt['save_folder'] = './datasets/GoPro/train/blur_crops'
@@ -41,6 +42,14 @@ def main():
     opt['crop_size'] = 512
     opt['step'] = 256
     opt['thresh_size'] = 0
+    extract_subimages(opt)
+
+    opt['input_folder'] = './datasets/GoPro/train/events'
+    opt['save_folder'] = './datasets/GoPro/train/events_crops'
+    opt['crop_size'] = 512
+    opt['step'] = 256
+    opt['thresh_size'] = 0
+    opt['suffix'] = "npy"
     extract_subimages(opt)
 
     create_lmdb_for_gopro()
@@ -64,7 +73,7 @@ def extract_subimages(opt):
         print(f'Folder {save_folder} already exists. Exit.')
         sys.exit(1)
 
-    img_list = list(scandir(input_folder, full_path=True))
+    img_list = list(scandir(input_folder, suffix=opt['suffix'] full_path=True))
 
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])
