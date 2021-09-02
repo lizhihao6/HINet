@@ -38,7 +38,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   ```
 * generate events
   ```
-  python scripts/data_preparation/generate_events.py
+  python scripts/data_preparation/gopro_generate_events.py
   python scripts/data_preparation/gopro.py
 
 * eval
