@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import refile
+import os
+import pickle
+
 import nori2 as nori
 import numpy as np
-import os
-import json
-import pickle
-import cv2
+import refile
 from tqdm import tqdm
 
 H = 720
@@ -42,7 +41,8 @@ def dir2nori(inp_dir, nori_file, info_file):
         # load txt
         event_txt = refile.smart_open(inputs[i].replace('.npy', '.txt'), 'r').read()
 
-        event_encode = pickle.dumps({'event_array': event_array, 'shape': event_ori.shape, 'event_txt': event_txt, 'name': img_name.replace('.npy', '.png')})
+        event_encode = pickle.dumps({'event_array': event_array, 'shape': event_ori.shape, 'event_txt': event_txt,
+                                     'name': img_name.replace('.npy', '.png')})
         nw.async_put(callback, event_encode)
 
     nw.join()
@@ -75,7 +75,7 @@ def main():
     #     os.makedirs(json_dir)
     # with open(json_file, 'w') as f:
     #     json.dump([res, img_paths], f)
-        # json.dump(img_paths, f)
+    # json.dump(img_paths, f)
 
 
 if __name__ == "__main__":

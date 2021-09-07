@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import refile
+import json
+import os
+
 import nori2 as nori
 import numpy as np
-import os
-import json
-import cv2
+import refile
 from tqdm import tqdm
 
 H = 720

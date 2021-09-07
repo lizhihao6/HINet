@@ -5,7 +5,6 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import os
-import sys
 from multiprocessing import Pool
 from os import path as osp
 
@@ -70,8 +69,8 @@ def extract_subimages(opt):
         os.makedirs(save_folder)
         print(f'mkdir {save_folder} ...')
     # else:
-        # print(f'Folder {save_folder} already exists. Exit.')
-        # sys.exit(1)
+    # print(f'Folder {save_folder} already exists. Exit.')
+    # sys.exit(1)
 
     img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
 

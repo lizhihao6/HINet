@@ -1,16 +1,15 @@
-
 import json
 import multiprocessing as mp
 import os
+import pickle
 import sys
+from pathlib import Path
+from shutil import copyfile
 
 import cv2
 import numpy as np
 from imageio import imread, imwrite
 from tqdm import tqdm, trange
-from pathlib import Path
-from shutil import copyfile
-import pickle
 
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
@@ -18,65 +17,128 @@ GOPRO_PATH = "./datasets/GoPro/"
 STEREO_ORI_PATH = "./datasets/stereo_blur/"
 STEREO_PATH = "./datasets/stereo_blur_data/"
 
-# dvs path
+# dvs setting
 V2E_PATH = "./.v2e"
 SLOMO_CHECKPOINT = "{}/.pretrain/SuperSloMo39.ckpt".format(V2E_PATH)
 POS_THRES, NEG_THRES = .2, .2  # use v2e --dvs_params clean will overwrite the --pos_thres and --neg_thres to .2
-DVS_PARAMS = "noisy" # or "clean"
+APPEND_ARGS = "--disable_slomo"
+COMMAND = "python3 {}/v2e.py " \
+          "-i %(input)s " \
+          "-o /tmp/output/$(date) " \
+          "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
+          "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
+          "--dvs_emulator_seed=0 --slomo_model={} --no_preview {} " \
+          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT, APPEND_ARGS)
+SIZE = (1280, 720)
+FPS = 960
+STEPS = 16
 
+# env setting
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
 
+
 class DVS_Genertor():
-    def __init__(self, noisy=True, size=(1280, 720), fps=480, pairs=None):
-        dvs_params = "noisy" if noisy else "clean"
-        self.size, self.fps, self.pairs = size, fps, pairs
-        self.command = "python3 {}/v2e.py " \
-            "-i %(input)s " \
-            "-o /tmp/output/$(date) " \
-            "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
-            "--output_height 720 --output_width 1280  --dvs_params {} --pos_thres={} --neg_thres={} " \
-            "--dvs_emulator_seed=0 --slomo_model={} --no_preview " \
-            "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, dvs_params, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT)
+    def __init__(self, pairs=None):
+        self.pairs = pairs
+        self.PIPELINE = dict(
+            sharps_to_blur=(DVS_Genertor._sharps_to_blur, CPU_NUM),
+            sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
+            avi_to_events=(DVS_Genertor._avi_to_events, GPU_NUM),
+            events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
+        )
+
+    def convert(self, pipeline):
+        for p in pipeline:
+            assert p in self.PIPELINE.keys()
+        for p in pipeline:
+            self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
+
+    def _multiprocessing(self, fn, num_cores):
+        print("Process: {}".format(fn.__name__))
+        pool = mp.Pool(num_cores)
+        results = [pool.apply_async(fn, args=(num_cores,)) for _ in range(num_cores)]
+        results = [p.get() for p in results]
+
+    def _son_process(self, fn, num_cores):
+        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(self.pairs), num_cores)
+        iter = tqdm(self.pairs[start_id, stop_id]) if start_id == 0 else self.pairs[start_id, stop_id]
+        for pair in iter:
+            fn(pair)
 
     @staticmethod
-    def _sharp_to_blur(size, im_paths, save_path):
-        blur_im = np.zeros(size)
-        for p in im_paths:
-            im = imread(p).astype(np.float32)/255.
-            blur_im += np.power(im, 2.2)/len(im_paths)
-        imwrite(save_path, np.power(blur_im, 1/2.2))
+    def _get_path(pair, name):
+        CONVERT_FN = dict(
+            sharp_paths=lambda x: x["sharp_paths"],
+            blur_path=lambda x: x["target_path"].replace("target", "input"),
+            avi_path=lambda x: x["target_path"].replace("target", "events").replace("png", "avi"),
+            clean_events_path=lambda x: x["target_path"].replace("target", "events").replace("png", "clean.txt"),
+            noisy_events_path=lambda x: x["target_path"].replace("target", "events").replace("png", "noisy.txt"),
+            clean_voxel_path=lambda x: x["target_path"].replace("target", "events").replace("png", "clean.npy"),
+            noisy_voxel_path=lambda x: x["target_path"].replace("target", "events").replace("png", "noisy.npy"),
+        )
+        assert name in CONVERT_FN.keys()
+        return CONVERT_FN[name](pair)
 
     @staticmethod
-    def _ims_to_avi(im_paths, save_path):
-        out = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), FPS, SIZE)
+    def _sharps_to_blur(pair):
+        sharp_paths = DVS_Genertor._get_path(pair, "sharp_paths")
+        blur_im = np.zeros([SIZE[1], SIZE[0], 3], dtype=np.float32)
+        for p in sharp_paths:
+            im = imread(p).astype(np.float32) / 255.
+            blur_im += np.power(im, 2.2) / len(sharp_paths)
+        imwrite(DVS_Genertor._get_path(pair, "blur_path"), np.power(blur_im, 1 / 2.2))
+
+    @staticmethod
+    def _sharps_to_avi(pair):
+        out = cv2.VideoWriter(DVS_Genertor._get_path(pair, "avi_paths"), cv2.VideoWriter_fourcc(*'DIVX'), FPS, SIZE)
         # out = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'HDYV'), FPS, SIZE)
-        for p in im_paths:
+        for p in DVS_Genertor._get_path(pair, "sharp_paths"):
             out.write(cv2.imread(p))
         out.release()
 
     @staticmethod
-    def _avi_to_events(command, avi_path, save_path):
-        cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + command % {'input': avi_path, 'output': save_path}
+    def _avi_to_events(pair):
+        avi_path = DVS_Genertor._get_path(pair, "avi_path")
+        clean_events_path = DVS_Genertor._get_path(pair, "clean_events_path")
+        noisy_events_path = DVS_Genertor._get_path(pair, "noisy_events_path")
+        cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output': clean_events_path,
+                                                                                    'dvs_params': "clean"}
+        os.system(cmd)
+        cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output': noisy_events_path,
+                                                                                    'dvs_params': "noisy"}
         os.system(cmd)
 
     @staticmethod
-    def _events_to_voxel(size, fps, events_path, steps, im_num, save_path):
-        assert steps % 2==0 and im_num % 2==1, "steps should be even and im_num should be odd"
-        events = np.zeros([steps, 2, size[0], size[1]]).astype(np.uint16)
-        diff, half_time = float(im_num-1)/ float(steps) / float(fps), float(im_num // 2) / float(fps)
+    def __events_to_voxel(pair, clean=True, remove_txt=True):
+        assert STEPS % 2 == 0 and STEPS != 0, "steps should be even and im_num should be odd"
+        events = np.zeros([STEPS, 2, SIZE[1], SIZE[0]]).astype(np.uint16)
+        im_num = len(DVS_Genertor._get_path(pair, "sharp_paths"))
+        diff = float(STEPS) * float(im_num - 1) / float(FPS)
+        dvs_params = "clean" if clean else "noisy"
+        events_path = DVS_Genertor._get_path(pair, "{}_events_path".format(dvs_params))
+        voxel_path = DVS_Genertor._get_path(pair, "{}_voxel_path".format(dvs_params))
         with open(events_path, "r+") as f:
             lines = (i for i in f.readlines() if not i.startswith("#"))
         for l in lines:
             _l = [float(i) for i in l.split("\n")[0].split(" ")]
             t, x, y, p = _l[0], int(_l[1]), int(_l[2]), int(_l[3])
-            if t >= diff * steps:
+            if t >= diff * STEPS:
                 continue
-            events[int(np.floor(t/diff)), p, y, x] +=1
+            events[int(np.floor(t / diff)), p, y, x] += 1
         # maybe we need add a events denoising function here?
         events = events.astype(np.float32)
-        events = events[:, 1]*POS_THRES - events[:, 0]*NEG_THRES
-        np.save(save_path, events)
+        events = events[:, 1] * POS_THRES - events[:, 0] * NEG_THRES
+        np.save(voxel_path, events)
+        if remove_txt:
+            os.remove(events_path)
+
+    @staticmethod
+    def _events_to_voxel(pair):
+        DVS_Genertor.__events_to_voxel(pair, clean=True)
+        DVS_Genertor.__events_to_voxel(pair, clean=False)
 
     @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num):
@@ -86,48 +148,24 @@ class DVS_Genertor():
             stop_id = data_num
         return start_id, stop_id
 
-    @staticmethod
-    def _convert_oris_to_blurred(pairs):
-        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(data_num, num_cores)
-        iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
-        for i in iter:
-            ori_input_paths, blurred_path = i["inputs"], i["target"].replace("target", "input")
-            DVS_Genertor._sharp_to_blur(ori_input_paths, blurred_path)
-
-    @staticmethod
-    def _convert_ims_to_avi(pairs):
-        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), core_num=CPU_NUM)
-        iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
-        for i in iter:
-            ori_input_paths, avi_path = i["inputs"], i["target"].replace("target", "events").replace("png", "avi")
-            DVS_Genertor._ims_to_avi(ori_input_paths, avi_path)
-
-    @staticmethod
-    def _convert_ims_to_avi():
-
-    def _multiprocessing(self, fn, num_cores, **kwargs):
-        print("Process: {}".format(fn.__name__))
-        print("num cores: {}".format(num_cores))
-        pool = mp.Pool(num_cores)
-        results = [pool.apply_async(fn, kwargs) for _ in range(num_cores)]
-        results = [p.get() for p in results]
-
-    def dist_convert_oris_to_blurred(self):
-        self._multiprocessing(DVS_Genertor._convert_oris_to_blurred)
-
-
-    def convert_oris_to_avi(self, pairs, ):
-
-            ims_to_avi(i["inputs"], i["target"].replace("target", "input").replace(".png", ".avi"))
 
 def stereo_generate_pairs():
+    train_dir = os.path.join(os.getcwd(), STEREO_PATH, "train")
+    test_dir = os.path.join(os.getcwd(), STEREO_PATH, "test")
+    dir_list = [train_dir, test_dir]
+    dir_list += [os.path.join(train_dir, __dir) for __dir in ["input", "target", "events"]]
+    dir_list += [os.path.join(test_dir, __dir) for __dir in ["input", "target", "events"]]
+    for d in dir_list:
+        if not os.path.exists(d):
+            os.makedirs(d)
+
     pairs_save_path = os.path.join(STEREO_PATH, "train_test_pairs.pkl")
     if os.path.exists(pairs_save_path):
         with open(pairs_save_path, "rb+") as f:
             return pickle.load(f)
     train_test_split = {}
     for j in json.load(os.path.join(STEREO_PATH, "stereo_deblur_data.json")):
-        train_test_split[j["name"]] = True if j["phase"]=="Train" else False
+        train_test_split[j["name"]] = True if j["phase"] == "Train" else False
     paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x8/*.png")]
     train_counter, test_counter = 0, 0
     pairs = []
@@ -135,17 +173,20 @@ def stereo_generate_pairs():
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
         for step in [17, 33, 49]:
-            if idx<step or idx%step != 0:
+            if idx < step or idx % step != 0:
                 continue
             input_list.append([os.path.join(os.getcwd(), p[:-10], "%05d.png" % i) for i in range(idx - step, idx)])
-            sharp_list.append(input_list[-1][step//2])
-        out_dir = os.path.join(os.getcwd(), STEREO_PATH, "train") if is_train else os.path.join(STEREO_PATH, "test")
+            sharp_list.append(input_list[-1][step // 2])
         if is_train:
-            out_paths = [os.path.join(out_dir, "target", "%07d.png"%(i+train_counter)) for i in range(len(input_list))]
+            out_paths = [os.path.join(train_dir, "target", "%07d.png" % (i + train_counter)) for i in
+                         range(len(input_list))]
             train_counter += len(input_list)
         else:
-            out_paths = [os.path.join(out_dir, "target", "%07d.png"%(i+test_counter)) for i in range(len(input_list))]
+            out_paths = [os.path.join(test_dir, "target", "%07d.png" % (i + test_counter)) for i in
+                         range(len(input_list))]
             test_counter += len(input_list)
+        for s, o in zip(sharp_list, out_paths):
+            copyfile(s, o)
         pairs.append(dict(inputs=inputs, target=out_path) for inputs, out_path in zip(input_list, out_paths))
 
     with open(pairs_save_path, "wb+") as f:
@@ -153,19 +194,12 @@ def stereo_generate_pairs():
     return pairs
 
 
-
-
-
-
-
 def convert_avi_to_events(pairs):
     start_id, stop_id = _get_start_id_and_stop_id(len(pairs), core_num=GPU_NUM)
-    iter = tqdm(pairs[start_id, stop_id]) if start_id ==0 else pairs[start_id, stop_id]
+    iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
     for i in iter:
         avi_path = i["target"].repace
         avi_to_events()
-
-
 
     assert prefix in ["train", "test"]
     ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]

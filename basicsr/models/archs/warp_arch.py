@@ -86,7 +86,7 @@ class HINet(nn.Module):
         # self.last = conv3x3(prev_channels, in_chn, bias=True)
         self.last = conv3x3(prev_channels, 3, bias=True)
 
-    def forward(self, x,):
+    def forward(self, x, ):
         image = x
         # stage 1
         x1 = self.conv_01(image)

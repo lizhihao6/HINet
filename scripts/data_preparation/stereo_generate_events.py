@@ -1,15 +1,15 @@
 import json
 import multiprocessing as mp
 import os
+import pickle
 import sys
+from pathlib import Path
 
 import cv2
 import numpy as np
 from imageio import imread, imwrite
 from tqdm import tqdm, trange
-from pathlib import Path
-from shutil import copyfile
-import pickle
+
 STEREO_ORI_PATH = "./datasets/stereo_blur/"
 STEREO_PATH = "./datasets/stereo_blur_data/"
 V2E_PATH = "./.v2e"
@@ -20,7 +20,6 @@ SIZE = (1280, 720)
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
 
-
 COMMAND = "python3 {}/v2e.py " \
           "-i %(input)s " \
           "-o /tmp/output/$(date) " \
@@ -29,12 +28,14 @@ COMMAND = "python3 {}/v2e.py " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview " \
           "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT)
 
+
 def sharp_to_blur(im_paths, save_path):
     blur_im = np.zeros([SIZE[1], SIZE[0], 3])
     for p in im_paths:
-        im = imread(p).astype(np.float32)/255.
-        blur_im += np.power(im, 2.2)/len(im_paths)
-    imwrite(save_path, np.power(blur_im, 1/2.2))
+        im = imread(p).astype(np.float32) / 255.
+        blur_im += np.power(im, 2.2) / len(im_paths)
+    imwrite(save_path, np.power(blur_im, 1 / 2.2))
+
 
 def ims_to_avi(im_paths, save_path):
     out = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'DIVX'), FPS, SIZE)
@@ -42,6 +43,7 @@ def ims_to_avi(im_paths, save_path):
     for p in im_paths:
         out.write(cv2.imread(p))
     out.release()
+
 
 def avi_to_events(avi_path, save_path):
     cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path, 'output': save_path}
@@ -55,7 +57,7 @@ def events_to_voxel(events_path, im_num, blurred_im_path, save_path):
     y_blurred_im = linear_blurred_im * np.array([0.299, 0.587, 0.114], dtype=np.float32).reshape([1, 1, 3])
     y_blurred_im = y_blurred_im.sum(2) * 255. + 16.
 
-    events = np.zeros([im_num-1, 2, y_blurred_im.shape[0], y_blurred_im.shape[1]]).astype(np.uint16)
+    events = np.zeros([im_num - 1, 2, y_blurred_im.shape[0], y_blurred_im.shape[1]]).astype(np.uint16)
     stack_events = np.zeros([2, y_blurred_im.shape[0], y_blurred_im.shape[1]]).astype(np.uint16)
     diff, half_time = 1. / float(FPS), float(im_num // 2) / float(FPS)
     with open(events_path, "r+") as f:
@@ -68,20 +70,21 @@ def events_to_voxel(events_path, im_num, blurred_im_path, save_path):
         if t < half_time:
             start_id, stop_id = 0, int(np.ceil(t / diff))
         else:
-            start_id, stop_id = int(np.floor(t / diff)), im_num-1
+            start_id, stop_id = int(np.floor(t / diff)), im_num - 1
         stack_events[p, y, x] += 1
         for e in range(start_id, stop_id):
-            _p = 1-p if t < half_time else p
+            _p = 1 - p if t < half_time else p
             events[e, _p, y, x] += 1
     stack_events, events = stack_events.astype(np.float32), events.astype(np.float32)
-    stack_events = stack_events[1]*POS_THRES - stack_events[0]*NEG_THRES
-    events = events[:, 1]*POS_THRES - events[:, 0]*NEG_THRES
+    stack_events = stack_events[1] * POS_THRES - stack_events[0] * NEG_THRES
+    events = events[:, 1] * POS_THRES - events[:, 0] * NEG_THRES
     events = np.exp(events).sum(0) / (im_num - 1)
     assert events.shape == y_blurred_im.shape, "events shape should be consistent with blurred image shape"
     y_sharp_im = y_blurred_im / events
     y_sharp_im = np.power(np.clip(y_sharp_im, 16, 235) / 255., 1 / 2.2) * 255.
     imwrite(save_path, y_sharp_im.astype(np.uint8))
     np.save(save_path.replace(".png", ".npy"), stack_events)
+
 
 def generate_pairs(pairs):
     pairs_save_path = os.path.join(STEREO_PATH, "train_test_pairs.pkl")
@@ -90,7 +93,7 @@ def generate_pairs(pairs):
             return pickle.load(f)
     train_test_split = {}
     for j in json.load(os.path.join(STEREO_PATH, "stereo_deblur_data.json")):
-        train_test_split[j["name"]] = True if j["phase"]=="Train" else False
+        train_test_split[j["name"]] = True if j["phase"] == "Train" else False
     paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x8/*.png")]
     train_counter, test_counter = 0, 0
     pairs = []
@@ -98,16 +101,18 @@ def generate_pairs(pairs):
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
         for step in [17, 33, 49]:
-            if idx<step or idx%step != 0:
+            if idx < step or idx % step != 0:
                 continue
             input_list.append([os.path.join(os.getcwd(), p[:-10], "%05d.png" % i) for i in range(idx - step, idx)])
-            sharp_list.append(input_list[-1][step//2])
+            sharp_list.append(input_list[-1][step // 2])
         out_dir = os.path.join(os.getcwd(), STEREO_PATH, "train") if is_train else os.path.join(STEREO_PATH, "test")
         if is_train:
-            out_paths = [os.path.join(out_dir, "target", "%07d.png"%(i+train_counter)) for i in range(len(input_list))]
+            out_paths = [os.path.join(out_dir, "target", "%07d.png" % (i + train_counter)) for i in
+                         range(len(input_list))]
             train_counter += len(input_list)
         else:
-            out_paths = [os.path.join(out_dir, "target", "%07d.png"%(i+test_counter)) for i in range(len(input_list))]
+            out_paths = [os.path.join(out_dir, "target", "%07d.png" % (i + test_counter)) for i in
+                         range(len(input_list))]
             test_counter += len(input_list)
         pairs.append(dict(inputs=inputs, target=out_path) for inputs, out_path in zip(input_list, out_paths))
 
@@ -115,12 +120,14 @@ def generate_pairs(pairs):
         f.write(pairs)
     return pairs
 
+
 def _get_start_id_and_stop_id(data_num, core_num):
-    idx = os.getpid() %core_num
-    start_id, stop_id = data_num//core_num*idx, data_num//core_num*(idx+1)
-    if idx==core_num-1:
+    idx = os.getpid() % core_num
+    start_id, stop_id = data_num // core_num * idx, data_num // core_num * (idx + 1)
+    if idx == core_num - 1:
         stop_id = data_num
     return start_id, stop_id
+
 
 def _get_paths(target_path):
     input_path = target_path.replace("target", "input")
@@ -136,23 +143,23 @@ def _get_paths(target_path):
         voxel_path=voxel_path
     )
 
+
 def convert_pairs_to_avi(pairs):
     start_id, stop_id = _get_start_id_and_stop_id(len(pairs), core_num=CPU_NUM)
-    iter = tqdm(pairs[start_id, stop_id]) if start_id ==0 else pairs[start_id, stop_id]
+    iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
     for i in iter:
         paths = _get_paths(i)
         sharp_to_blur(i["inputs"], i["target"])
         sharp_to_blur(i["inputs"], i["target"].replace("target", "input"))
         ims_to_avi(i["inputs"], i["target"].replace("target", "input").replace(".png", ".avi"))
 
+
 def convert_avi_to_events(pairs):
     start_id, stop_id = _get_start_id_and_stop_id(len(pairs), core_num=GPU_NUM)
-    iter = tqdm(pairs[start_id, stop_id]) if start_id ==0 else pairs[start_id, stop_id]
+    iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
     for i in iter:
         avi_path = i["target"].repace
         avi_to_events()
-
-
 
     assert prefix in ["train", "test"]
     ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import json
-from lovelive_sdk import Dataset, Atom, DatasetType, BizType
 import os
+
 import tqdm
+from lovelive_sdk import Dataset, Atom, DatasetType, BizType
 
 
 def make_lovelive_dataset(json_file, dataset_name):
@@ -13,8 +14,8 @@ def make_lovelive_dataset(json_file, dataset_name):
     for i in tqdm.tqdm(range(len(file_dirs))):
         name = os.path.basename(file_dirs[i])
         atom = Atom(name=name)
-        atom.add_pics(nids[i*2])
-        atom.add_pics(nids[i*2+1])
+        atom.add_pics(nids[i * 2])
+        atom.add_pics(nids[i * 2 + 1])
         atom.commit_to_dataset(dataset_name)
 
 
