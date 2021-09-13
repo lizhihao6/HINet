@@ -165,7 +165,7 @@ def stereo_generate_pairs():
             os.makedirs(d)
 
     train_test_split = {}
-    for j in json.load(os.path.join(STEREO_PATH, "stereo_deblur_data.json")):
+    for j in json.loads(os.path.join(STEREO_ORI_PATH, "stereo_deblur_data.json")):
         train_test_split[j["name"]] = True if j["phase"] == "Train" else False
     paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x8/*.png")]
     train_counter, test_counter = 0, 0
