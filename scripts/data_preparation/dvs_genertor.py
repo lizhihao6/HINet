@@ -192,7 +192,7 @@ def stereo_generate_pairs():
         pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
 
     with open(pairs_save_path, "wb+") as f:
-        f.write(pairs)
+        pickle.dump(pairs)
     return pairs
 
 
@@ -224,7 +224,7 @@ def gopro_generate_pairs():
             ))
 
     with open(pairs_save_path, "wb+") as f:
-        f.write(pairs)
+        pickle.dump(pairs)
     return pairs
 
 
