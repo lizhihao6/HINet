@@ -14,9 +14,15 @@ from tqdm import tqdm
 
 from basicsr.utils import scandir
 from basicsr.utils.create_lmdb import create_lmdb_for_gopro
-
+from scripts.data_preparation.dvs_genertor import gopro_generate_pairs, DVS_Genertor
 
 def main():
+    gopro_pairs = gopro_generate_pairs()
+    global APPEND_ARGS
+    APPEND_ARGS = ""
+    dvs_genertor = DVS_Genertor(gopro_pairs)
+    dvs_genertor.run(["sharps_to_avi", "avi_to_events", "events_to_voxel"])
+
     opt = {}
     opt['n_thread'] = 40
     opt['compression_level'] = 3

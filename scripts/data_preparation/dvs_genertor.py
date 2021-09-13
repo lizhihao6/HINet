@@ -2,14 +2,13 @@ import json
 import multiprocessing as mp
 import os
 import pickle
-import sys
 from pathlib import Path
 from shutil import copyfile
 
 import cv2
 import numpy as np
 from imageio import imread, imwrite
-from tqdm import tqdm, trange
+from tqdm import tqdm
 
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
@@ -41,14 +40,15 @@ CPU_NUM = int(mp.cpu_count())
 class DVS_Genertor():
     def __init__(self, pairs=None):
         self.pairs = pairs
+        avi_to_events_core_num = GPU_NUM if len(APPEND_ARGS) == 0 else CPU_NUM
         self.PIPELINE = dict(
             sharps_to_blur=(DVS_Genertor._sharps_to_blur, CPU_NUM),
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
-            avi_to_events=(DVS_Genertor._avi_to_events, GPU_NUM),
+            avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
         )
 
-    def convert(self, pipeline):
+    def run(self, pipeline):
         for p in pipeline:
             assert p in self.PIPELINE.keys()
         for p in pipeline:
@@ -150,6 +150,11 @@ class DVS_Genertor():
 
 
 def stereo_generate_pairs():
+    pairs_save_path = os.path.join(STEREO_PATH, "train_test_pairs.pkl")
+    if os.path.exists(pairs_save_path):
+        with open(pairs_save_path, "rb+") as f:
+            return pickle.load(f)
+
     train_dir = os.path.join(os.getcwd(), STEREO_PATH, "train")
     test_dir = os.path.join(os.getcwd(), STEREO_PATH, "test")
     dir_list = [train_dir, test_dir]
@@ -159,10 +164,6 @@ def stereo_generate_pairs():
         if not os.path.exists(d):
             os.makedirs(d)
 
-    pairs_save_path = os.path.join(STEREO_PATH, "train_test_pairs.pkl")
-    if os.path.exists(pairs_save_path):
-        with open(pairs_save_path, "rb+") as f:
-            return pickle.load(f)
     train_test_split = {}
     for j in json.load(os.path.join(STEREO_PATH, "stereo_deblur_data.json")):
         train_test_split[j["name"]] = True if j["phase"] == "Train" else False
@@ -187,57 +188,45 @@ def stereo_generate_pairs():
             test_counter += len(input_list)
         for s, o in zip(sharp_list, out_paths):
             copyfile(s, o)
-        pairs.append(dict(inputs=inputs, target=out_path) for inputs, out_path in zip(input_list, out_paths))
+        pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
 
     with open(pairs_save_path, "wb+") as f:
         f.write(pairs)
     return pairs
 
 
-def convert_avi_to_events(pairs):
-    start_id, stop_id = _get_start_id_and_stop_id(len(pairs), core_num=GPU_NUM)
-    iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
-    for i in iter:
-        avi_path = i["target"].repace
-        avi_to_events()
+def gopro_generate_pairs():
+    pairs_save_path = os.path.join(GOPRO_PATH, "train_test_pairs.pkl")
+    if os.path.exists(pairs_save_path):
+        with open(pairs_save_path, "rb+") as f:
+            return pickle.load(f)
 
-    assert prefix in ["train", "test"]
-    ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]
-    tar_ids = [int(float(str(s)[len(name + "-"):-len(".png")])) for s in
-               os.listdir(os.path.join(GOPRO_PATH, prefix, "target")) if name in s]
-    save_dir = os.path.join(GOPRO_PATH, prefix, "events")
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-    ori_ids, tar_ids = sorted(ori_ids), sorted(tar_ids)
-    steps = len(ori_ids) // len(tar_ids)
-    assert len(ori_ids) == len(tar_ids) * steps, (prefix, name, len(ori_ids), len(tar_ids))
-    if show_bar:
-        iter = trange(len(tar_ids), file=sys.stdout)
-    else:
-        iter = range(len(tar_ids))
-    for i in iter:
-        save_id = tar_ids[i]
-        im_paths = [os.path.join(GOPRO_ORI_PATH, prefix, name, "%06d.png" % ori_id) for ori_id in
-                    ori_ids[i * steps:i * steps + steps]]
-        avi_path = os.path.join(save_dir, "{}-".format(name) + "%06d.avi" % save_id)
-        events_path = avi_path.replace(".avi", ".txt")
-        blurred_im_path = os.path.join(GOPRO_PATH, prefix, "input", name + "-" + "%06d.png" % save_id)
-        init_sharp_im_path = avi_path.replace(".avi", ".png")
-        ims_to_avi(im_paths, avi_path)
-        avi_to_events(avi_path, events_path)
-        events_to_im(events_path, steps, blurred_im_path, init_sharp_im_path)
+    pairs = []
+    train_set = [("train", name) for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "train"))]
+    test_set = [["test", name] for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "test"))]
+    for prefix, name in train_set + test_set:
+        if not os.path.exists(os.path.join(GOPRO_PATH, prefix, "events")):
+            os.makedirs(os.path.join(GOPRO_PATH, prefix, "events"))
+        ori_ids = [int(float(str(s)[:-len(".png")])) for s in os.listdir(os.path.join(GOPRO_ORI_PATH, prefix, name))]
+        tar_ids = [int(float(str(s)[len(name + "-"):-len(".png")])) for s in
+                   os.listdir(os.path.join(GOPRO_PATH, prefix, "target")) if name in s]
+        ori_ids, tar_ids = sorted(ori_ids), sorted(tar_ids)
+        steps = len(ori_ids) // len(tar_ids)
+        assert len(ori_ids) == len(tar_ids) * steps, (prefix, name, len(ori_ids), len(tar_ids))
+        for i in range(len(tar_ids)):
+            sharp_paths = [os.path.join(GOPRO_ORI_PATH, prefix, name, "%06d.png" % ori_id) for ori_id in
+                           ori_ids[i * steps:i * steps + steps]]
+            target_path = os.path.join(GOPRO_PATH, prefix, "target", name + "-" + "%06d.png" % tar_ids[i])
+            pairs.append(dict(
+                sharp_paths=sharp_paths,
+                target_path=target_path
+            ))
+
+    with open(pairs_save_path, "wb+") as f:
+        f.write(pairs)
+    return pairs
 
 
 if __name__ == '__main__':
-    # num_cores = int(mp.cpu_count())
-    num_cores = GPU_NUM
-    print("num cores: {}".format(num_cores))
-    pool = mp.Pool(num_cores)
-    params = [["train", name, False] for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "train"))]
-    params += [["test", name, False] for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "test"))]
-    for i, p in enumerate(params):
-        if i % num_cores == 0:
-            params[i][2] = True
-
-    results = [pool.apply_async(convert, args=(t[0], t[1], t[2])) for t in params]
-    results = [p.get() for p in results]
+    stereo_pairs = stereo_generate_pairs()
+    gopro_pairs = gopro_generate_pairs()
