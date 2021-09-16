@@ -42,7 +42,7 @@ val:
   save_img: true
   grids: true
   crop_size: 256
-  max_minibatch: 2
+  max_minibatch: 6
 
   metrics:
     psnr: # metric name, can be arbitrary
