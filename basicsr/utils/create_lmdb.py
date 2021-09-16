@@ -149,11 +149,11 @@ def create_lmdb_for_SIDD():
 
 
 def create_lmdb_for_midvs():
-    img_path_list = [str(s) for s in Path("./datasets/MiDVS/").glob("*/*output*")]
-    keys = [p.split("/")[-2] for p in img_path_list]
+    gt_path_list = [str(s) for s in Path("./datasets/MiDVS/").glob("*/*output*")]
+    keys = [p.split("/")[-2] for p in gt_path_list]
+    lq_path_list = [p.replace("Deblur(output)", "Blur(original)") for p in gt_path_list]
+    print(gt_path_list[0], lq_path_list[0], keys[0], flush=True)
     lmdb_path = './datasets/MiDVS/target.lmdb'
-    make_lmdb_from_imgs("", lmdb_path, img_path_list, keys)
-    img_path_list = [str(s) for s in Path("./datasets/MiDVS/").glob("*/*original*")]
-    keys = [p.split("/")[-2] for p in img_path_list]
+    make_lmdb_from_imgs("", lmdb_path, gt_path_list, keys)
     lmdb_path = './datasets/MiDVS/input.lmdb'
-    make_lmdb_from_imgs("", lmdb_path, img_path_list, keys)
+    make_lmdb_from_imgs("", lmdb_path, lq_path_list, keys)
