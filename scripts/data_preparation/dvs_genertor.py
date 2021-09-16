@@ -168,7 +168,7 @@ def stereo_generate_pairs():
     with open(os.path.join(STEREO_ORI_PATH, "stereo_deblur_data.json"), "r+") as f:
         for j in json.load(f):
             train_test_split[j["name"]] = True if j["phase"] == "Train" else False
-    paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x8/*.png")]
+    paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x16/*.png")]
     train_counter, test_counter = 0, 0
     pairs = []
     for p in paths:
@@ -204,7 +204,7 @@ def gopro_generate_pairs():
 
     pairs = []
     train_set = [("train", name) for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "train"))]
-    test_set = [["test", name] for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "test"))]
+    test_set = [("test", name) for name in os.listdir(os.path.join(GOPRO_ORI_PATH, "test"))]
     for prefix, name in train_set + test_set:
         if not os.path.exists(os.path.join(GOPRO_PATH, prefix, "events")):
             os.makedirs(os.path.join(GOPRO_PATH, prefix, "events"))

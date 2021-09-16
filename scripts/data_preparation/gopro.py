@@ -16,6 +16,7 @@ from basicsr.utils import scandir
 from basicsr.utils.create_lmdb import create_lmdb_for_gopro
 from scripts.data_preparation.dvs_genertor import gopro_generate_pairs, DVS_Genertor
 
+
 def main():
     gopro_pairs = gopro_generate_pairs()
     global APPEND_ARGS

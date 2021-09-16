@@ -5,6 +5,7 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 from os import path as osp
+from pathlib import Path
 
 from basicsr.utils import scandir
 from basicsr.utils.lmdb_util import make_lmdb_from_imgs
@@ -145,3 +146,14 @@ def create_lmdb_for_SIDD():
                     cv2.cvtColor(data[i, ...], cv2.COLOR_RGB2BGR))
     img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+
+
+def create_lmdb_for_midvs():
+    img_path_list = [str(s) for s in Path("./datasets/MiDVS/").glob("*/*output*")]
+    keys = [p.split("/")[-2] for p in img_path_list]
+    lmdb_path = './datasets/MiDVS/target.lmdb'
+    make_lmdb_from_imgs("", lmdb_path, img_path_list, keys)
+    img_path_list = [str(s) for s in Path("./datasets/MiDVS/").glob("*/*original*")]
+    keys = [p.split("/")[-2] for p in img_path_list]
+    lmdb_path = './datasets/MiDVS/input.lmdb'
+    make_lmdb_from_imgs("", lmdb_path, img_path_list, keys)
