@@ -10,3 +10,7 @@ from basicsr.utils.create_lmdb import create_lmdb_for_midvs
 
 def main():
     create_lmdb_for_midvs()
+
+
+if __name__ == '__main__':
+    main()
