@@ -15,7 +15,7 @@ manual_seed: 10
 datasets:
 
   test:
-    name: REDS
+    name: MiDVS
     type: PairedImageDataset
 
     dataroot_gt: ./datasets/MiDVS/target.lmdb
