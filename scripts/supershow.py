@@ -21,7 +21,7 @@ if __name__ == '__main__':
         img_gt_path = img_gts[i]
         img_path = img_gt_path.replace('_gt', '')
         input_path = os.path.join(
-            "./datasets/MiDVS/{}/\'and_Blur(original).png\'".format(os.path.basename(img_path)[:-4]))
+            "./datasets/MiDVS/{}/and_Blur(original).png".format(os.path.basename(img_path)[:-4]))
         img_gt = cv2.imdecode(np.frombuffer(refile.smart_open(img_gt_path, 'rb').read(), dtype=np.uint8),
                               cv2.IMREAD_UNCHANGED, ).reshape(3000, 4000, 3)
         img = cv2.imdecode(np.frombuffer(refile.smart_open(img_path, 'rb').read(), dtype=np.uint8),
