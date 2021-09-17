@@ -17,7 +17,7 @@ if __name__ == '__main__':
     img_gts = [x for x in refile.smart_glob(refile.smart_path_join(args.path, '*_gt.png'))]
     img_gts = sorted(img_gts)
     s = Submitter('single_deblur_ret')
-    for i in trange(img_gts):
+    for i in trange(len(img_gts)):
         img_gt_path = img_gts[i]
         img_path = img_gt_path.replace('_gt', '')
         img_gt = cv2.imdecode(np.frombuffer(refile.smart_open(img_gt_path, 'rb').read(), dtype=np.uint8),
