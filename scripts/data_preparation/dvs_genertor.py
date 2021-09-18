@@ -58,15 +58,17 @@ class DVS_Genertor():
     def _multiprocessing(self, fn, num_cores):
         print("Process: {}".format(fn.__name__))
         pool = Pool(num_cores)
-        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores,)) for _ in
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores, idx,)) for idx in
                    range(num_cores)]
         results = [p.get() for p in results]
 
     @staticmethod
-    def _son_process(pairs, fn, num_cores):
-        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores)
+    def _son_process(pairs, fn, num_cores, idx):
+        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores, idx)
         iter = tqdm(pairs[start_id:stop_id]) if start_id == 0 else pairs[start_id: stop_id]
         for pair in iter:
+            if start_id == 0:
+                print("", flush=True)
             fn(pair)
 
     @staticmethod
@@ -151,8 +153,8 @@ class DVS_Genertor():
         DVS_Genertor.__events_to_voxel(pair, clean=False)
 
     @staticmethod
-    def _get_start_id_and_stop_id(data_num, core_num):
-        idx = os.getpid() % core_num
+    def _get_start_id_and_stop_id(data_num, core_num, idx=None):
+        idx = os.getpid() % core_num if idx is None else idx
         start_id, stop_id = data_num // core_num * idx, data_num // core_num * (idx + 1)
         if idx == core_num - 1:
             stop_id = data_num
