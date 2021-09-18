@@ -25,7 +25,7 @@ def main():
             with open(t, "r+") as f:
                 for l in f.readlines():
                     y, x, e = l.split("\n")[0].split(" ")[1:]
-                    y, x, e = int(float(y)), int(float(x)), int(float(p))
+                    y, x, e = int(float(y)), int(float(x)), int(float(e))
                     if e == 0:
                         events[y, x] -= 0.2
                     else:
