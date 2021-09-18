@@ -9,17 +9,20 @@ from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
+
+
 # from basicsr.utils.create_lmdb import create_lmdb_for_midvs
 
 
 def main():
     # create_lmdb_for_midvs()
     for _p in tqdm(os.listdir("./datasets/MiDVS/")):
-        p = os.path.join("./datasets/MiDVS", _p)
+        p = os.path.join("./datasets/MiDVS/", _p)
         if len([i for i in os.listdir(p) if i.endswith("txt")]) == 0:
             continue
         events = np.zeros([720, 960])
         for t in [str(s) for s in Path(p).glob("txt")]:
+            print(t)
             with open(t, "r+") as f:
                 for l in f.readlines():
                     y, x, p = l.split("\n")[0].split(" ")[1:]
