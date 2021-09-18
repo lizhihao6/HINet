@@ -21,8 +21,7 @@ def main():
         if len([i for i in os.listdir(p) if i.endswith("txt")]) == 0:
             continue
         events = np.zeros([720, 960])
-        for t in [str(s) for s in Path(p).glob("txt")]:
-            print(t)
+        for t in [str(s) for s in Path(p).glob("*.txt")]:
             with open(t, "r+") as f:
                 for l in f.readlines():
                     y, x, p = l.split("\n")[0].split(" ")[1:]
@@ -31,7 +30,7 @@ def main():
                         events[y, x] -= 0.2
                     else:
                         events[y, x] += 0.2
-        np.save("./datasets/MiDVS/events/{}.npy".format(p.split("/")[-2]), events)
+        np.save("./datasets/MiDVS/events/{}.npy".format(p.split("/")[-1]), events)
 
 
 if __name__ == '__main__':
