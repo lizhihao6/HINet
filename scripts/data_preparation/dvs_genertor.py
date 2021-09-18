@@ -171,7 +171,7 @@ def stereo_generate_pairs():
     paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_left_x16/*.png")]
     train_counter, test_counter = 0, 0
     pairs = []
-    for p in paths:
+    for p in tqdm(paths):
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
         for step in [16+17, 16+33, 16+49]:
