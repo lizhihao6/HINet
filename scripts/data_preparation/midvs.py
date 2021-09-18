@@ -18,7 +18,7 @@ def main():
     # create_lmdb_for_midvs()
     for _p in tqdm(os.listdir("./datasets/MiDVS/")):
         p = os.path.join("./datasets/MiDVS/", _p)
-        if len([i for i in os.listdir(p) if i.endswith("txt")]) == 0:
+        if "lmdb" in _p or len([i for i in os.listdir(p) if i.endswith("txt")]) == 0:
             continue
         events = np.zeros([720, 960])
         for t in [str(s) for s in Path(p).glob("*.txt")]:
