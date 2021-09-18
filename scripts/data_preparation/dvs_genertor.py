@@ -174,8 +174,8 @@ def stereo_generate_pairs():
     for p in tqdm(paths):
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
-        for step in [16+17, 16+33, 16+49]:
-            if idx < step or idx % step != 0:
+        for step in [17, 33, 49]:
+            if idx < step+16 or idx % step != 0:
                 continue
             input_list.append([os.path.join(os.getcwd(), p[:-10], "%05d.png" % i) for i in range(idx - step, idx)])
             sharp_list.append(input_list[-1][step // 2])
