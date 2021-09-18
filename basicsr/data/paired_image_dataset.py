@@ -6,6 +6,7 @@
 # ------------------------------------------------------------------------
 import os
 
+import cv2
 import numpy as np
 import torch
 from torch.utils import data as data
@@ -350,9 +351,16 @@ class PairedImageDataset_DVS(data.Dataset):
         # if self.opt['phase'] == 'train':
         #     events_path = events_path.replace("sharp_crops", "events_crops")
         # events = np.load(events_path)
-        events_path = "train/events_crops" if self.opt['phase'] == 'train' else "test/events"
-        events_path = os.path.join("./datasets/GoPro", events_path, "{}.npy".format(gt_path))
+        # events_path = "train/events_crops" if self.opt['phase'] == 'train' else "test/events"
+        # events_path = os.path.join("./datasets/GoPro", events_path, "{}.npy".format(gt_path))
+        # events = np.load(events_path)
+
+        # for midvs
+        print(gt_path)
+        exit(-1)
+        events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
         events = np.load(events_path)
+        events = cv2.resize(events, (4000, 3000))
 
         # augmentation for training
         if self.opt['phase'] == 'train':
