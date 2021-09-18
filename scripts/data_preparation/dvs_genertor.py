@@ -1,5 +1,6 @@
 import json
 import multiprocessing as mp
+from multiprocessing.dummy import Pool
 import os
 import pickle
 from pathlib import Path
@@ -56,7 +57,7 @@ class DVS_Genertor():
 
     def _multiprocessing(self, fn, num_cores):
         print("Process: {}".format(fn.__name__))
-        pool = mp.Pool(num_cores)
+        pool = Pool(num_cores)
         results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores,)) for _ in
                    range(num_cores)]
         results = [p.get() for p in results]
