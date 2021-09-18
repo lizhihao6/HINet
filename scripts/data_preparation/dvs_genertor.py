@@ -189,7 +189,7 @@ def stereo_generate_pairs():
             test_counter += len(input_list)
         for s, o in zip(sharp_list, out_paths):
             # copyfile(s, o)
-            os.system(s, o)
+            os.symlink(s, o)
         pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
 
         input_list = [[p.replace("left", "right") for p in inputs] for inputs in input_list]
@@ -197,7 +197,7 @@ def stereo_generate_pairs():
         out_paths = [p.replace("left", "right") for p in out_paths]
         for s, o in zip(sharp_list, out_paths):
             # copyfile(s, o)
-            os.system(s, o)
+            os.symlink(s, o)
         pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
 
     with open(pairs_save_path, "wb+") as f:
