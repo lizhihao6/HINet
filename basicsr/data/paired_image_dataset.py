@@ -358,7 +358,7 @@ class PairedImageDataset_DVS(data.Dataset):
         # for midvs
         events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
         events = np.load(events_path)
-        events = cv2.resize(events, (4000, 3000))
+        events = cv2.resize(events, (4000, 3000)).astype(np.float32)
 
         # augmentation for training
         if self.opt['phase'] == 'train':
