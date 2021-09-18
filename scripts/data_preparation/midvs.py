@@ -24,9 +24,9 @@ def main():
         for t in [str(s) for s in Path(p).glob("*.txt")]:
             with open(t, "r+") as f:
                 for l in f.readlines():
-                    y, x, p = l.split("\n")[0].split(" ")[1:]
-                    y, x, p = int(float(y)), int(float(x)), int(float(p))
-                    if p == 0:
+                    y, x, e = l.split("\n")[0].split(" ")[1:]
+                    y, x, e = int(float(y)), int(float(x)), int(float(p))
+                    if e == 0:
                         events[y, x] -= 0.2
                     else:
                         events[y, x] += 0.2
