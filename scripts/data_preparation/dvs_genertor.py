@@ -57,12 +57,13 @@ class DVS_Genertor():
     def _multiprocessing(self, fn, num_cores):
         print("Process: {}".format(fn.__name__))
         pool = mp.Pool(num_cores)
-        results = [pool.apply_async(fn, args=(num_cores,)) for _ in range(num_cores)]
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores,)) for _ in range(num_cores)]
         results = [p.get() for p in results]
 
-    def _son_process(self, fn, num_cores):
-        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(self.pairs), num_cores)
-        iter = tqdm(self.pairs[start_id, stop_id]) if start_id == 0 else self.pairs[start_id, stop_id]
+    @staticmethod
+    def _son_process(pairs, fn, num_cores):
+        start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores)
+        iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
         for pair in iter:
             fn(pair)
 
@@ -239,4 +240,6 @@ def gopro_generate_pairs():
 
 if __name__ == '__main__':
     stereo_pairs = stereo_generate_pairs()
-    gopro_pairs = gopro_generate_pairs()
+    dvs_genertor = DVS_Genertor(stereo_pairs)
+    dvs_genertor.run(["sharps_to_blur"])
+    # gopro_pairs = gopro_generate_pairs()
