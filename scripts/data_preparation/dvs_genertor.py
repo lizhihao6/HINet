@@ -88,7 +88,8 @@ class DVS_Genertor():
         for p in sharp_paths:
             im = imread(p).astype(np.float32) / 255.
             blur_im += np.power(im, 2.2) / len(sharp_paths)
-        imwrite(DVS_Genertor._get_path(pair, "blur_path"), np.power(blur_im, 1 / 2.2))
+        blur_im = np.power(blur_im, 1 / 2.2)*255.
+        imwrite(DVS_Genertor._get_path(pair, "blur_path"), blur_im.astype(np.uint8))
 
     @staticmethod
     def _sharps_to_avi(pair):
