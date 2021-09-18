@@ -191,7 +191,7 @@ def stereo_generate_pairs():
             copyfile(s, o)
         pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
 
-        input_list = [p.replace("left", "right") for p in input_list]
+        input_list = [[p.replace("left", "right") for p in inputs] for inputs in input_list]
         sharp_list = [p.replace("left", "right") for p in sharp_list]
         out_paths = [p.replace("left", "right") for p in out_paths]
         if is_train:
