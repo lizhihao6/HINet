@@ -356,8 +356,6 @@ class PairedImageDataset_DVS(data.Dataset):
         # events = np.load(events_path)
 
         # for midvs
-        print(gt_path)
-        exit(-1)
         events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
         events = np.load(events_path)
         events = cv2.resize(events, (4000, 3000))
