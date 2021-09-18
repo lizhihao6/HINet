@@ -6,6 +6,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from aiisp_tool.utils.oss_helper import OSSHelper
 from imageio import imread, imwrite
 from tqdm import tqdm
 
@@ -88,12 +89,12 @@ class DVS_Genertor():
         for p in sharp_paths:
             im = imread(p).astype(np.float32) / 255.
             blur_im += np.power(im, 2.2) / len(sharp_paths)
-        blur_im = np.power(blur_im, 1 / 2.2)*255.
+        blur_im = np.power(blur_im, 1 / 2.2) * 255.
         imwrite(DVS_Genertor._get_path(pair, "blur_path"), blur_im.astype(np.uint8))
 
     @staticmethod
     def _sharps_to_avi(pair):
-        out = cv2.VideoWriter(DVS_Genertor._get_path(pair, "avi_paths"), cv2.VideoWriter_fourcc(*'DIVX'), FPS, SIZE)
+        out = cv2.VideoWriter(DVS_Genertor._get_path(pair, "avi_path"), cv2.VideoWriter_fourcc(*'DIVX'), FPS, SIZE)
         # out = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'HDYV'), FPS, SIZE)
         for p in DVS_Genertor._get_path(pair, "sharp_paths"):
             out.write(cv2.imread(p))
@@ -133,7 +134,13 @@ class DVS_Genertor():
         # maybe we need add a events denoising function here?
         events = events.astype(np.float32)
         events = events[:, 1] * POS_THRES - events[:, 0] * NEG_THRES
-        np.save(voxel_path, events)
+        if "test" in voxel_path:
+            np.save(voxel_path, events)
+        else:
+            helper = OSSHelper()
+            helper.upload(events.tobytes(),
+                          "s3://lzh-share/stereo_blur_data/" + voxel_path.split("stereo_blur_data/")[-1], "bin")
+
         if remove_txt:
             os.remove(events_path)
 
@@ -242,5 +249,5 @@ def gopro_generate_pairs():
 if __name__ == '__main__':
     stereo_pairs = stereo_generate_pairs()
     dvs_genertor = DVS_Genertor(stereo_pairs)
-    dvs_genertor.run(["sharps_to_blur"])
+    dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
     # gopro_pairs = gopro_generate_pairs()
