@@ -168,24 +168,35 @@ def stereo_generate_pairs():
     with open(os.path.join(STEREO_ORI_PATH, "stereo_deblur_data.json"), "r+") as f:
         for j in json.load(f):
             train_test_split[j["name"]] = True if j["phase"] == "Train" else False
-    paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_*_x16/*.png")]
+    paths = [str(s) for s in Path(STEREO_ORI_PATH).glob("*/image_left_x16/*.png")]
     train_counter, test_counter = 0, 0
     pairs = []
     for p in paths:
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
-        for step in [17, 33, 49]:
+        for step in [16+17, 16+33, 16+49]:
             if idx < step or idx % step != 0:
                 continue
             input_list.append([os.path.join(os.getcwd(), p[:-10], "%05d.png" % i) for i in range(idx - step, idx)])
             sharp_list.append(input_list[-1][step // 2])
         if is_train:
-            out_paths = [os.path.join(train_dir, "target", "%07d.png" % (i + train_counter)) for i in
+            out_paths = [os.path.join(train_dir, "target", "left_%07d.png" % (i + train_counter)) for i in
                          range(len(input_list))]
             train_counter += len(input_list)
         else:
-            out_paths = [os.path.join(test_dir, "target", "%07d.png" % (i + test_counter)) for i in
+            out_paths = [os.path.join(test_dir, "target", "left_%07d.png" % (i + test_counter)) for i in
                          range(len(input_list))]
+            test_counter += len(input_list)
+        for s, o in zip(sharp_list, out_paths):
+            copyfile(s, o)
+        pairs.append(dict(sharp_paths=inputs, target_path=out_path) for inputs, out_path in zip(input_list, out_paths))
+
+        input_list = [p.replace("left", "right") for p in input_list]
+        sharp_list = [p.replace("left", "right") for p in sharp_list]
+        out_paths = [p.replace("left", "right") for p in out_paths]
+        if is_train:
+            train_counter += len(input_list)
+        else:
             test_counter += len(input_list)
         for s, o in zip(sharp_list, out_paths):
             copyfile(s, o)
