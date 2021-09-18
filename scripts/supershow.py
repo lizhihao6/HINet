@@ -27,7 +27,7 @@ if __name__ == '__main__':
         img = cv2.imdecode(np.frombuffer(refile.smart_open(img_path, 'rb').read(), dtype=np.uint8),
                            cv2.IMREAD_UNCHANGED, ).reshape(3000, 4000, 3)
         img_input = cv2.imdecode(np.frombuffer(refile.smart_open(input_path, 'rb').read(), dtype=np.uint8),
-                           cv2.IMREAD_UNCHANGED, ).reshape(3000, 4000, 3)
+                                 cv2.IMREAD_UNCHANGED, ).reshape(3000, 4000, 3)
 
         s.submit('{}'.format(args.tag),
                  {

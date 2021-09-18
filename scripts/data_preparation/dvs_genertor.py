@@ -3,7 +3,6 @@ import multiprocessing as mp
 import os
 import pickle
 from pathlib import Path
-from shutil import copyfile
 
 import cv2
 import numpy as np
@@ -57,13 +56,14 @@ class DVS_Genertor():
     def _multiprocessing(self, fn, num_cores):
         print("Process: {}".format(fn.__name__))
         pool = mp.Pool(num_cores)
-        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores,)) for _ in range(num_cores)]
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores,)) for _ in
+                   range(num_cores)]
         results = [p.get() for p in results]
 
     @staticmethod
     def _son_process(pairs, fn, num_cores):
         start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores)
-        iter = tqdm(pairs[start_id, stop_id]) if start_id == 0 else pairs[start_id, stop_id]
+        iter = tqdm(pairs[start_id:stop_id]) if start_id == 0 else pairs[start_id: stop_id]
         for pair in iter:
             fn(pair)
 
@@ -176,7 +176,7 @@ def stereo_generate_pairs():
         is_train, idx = train_test_split[p.split("/")[-3]], int(float(p.split("/")[-1][:-4]))
         input_list, sharp_list = [], []
         for step in [17, 33, 49]:
-            if idx < step+16 or idx % step != 0:
+            if idx < step + 16 or idx % step != 0:
                 continue
             input_list.append([os.path.join(os.getcwd(), p[:-10], "%05d.png" % i) for i in range(idx - step, idx)])
             sharp_list.append(input_list[-1][step // 2])
