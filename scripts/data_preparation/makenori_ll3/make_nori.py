@@ -34,16 +34,7 @@ def dir2nori(inp_dir, gt_dir, nori_file, json_dir):
     nw.join()
     return res, inputs
 
-
-def main():
-    datasets = {
-        'train': [
-            's3://lzh-share/GoPro/train/input/',
-            's3://lzh-share/GoPro/train/target/',
-            's3://llcv-dataspace/GoPro/train.nori',
-            './nori_json/train.json'
-        ]
-    }
+def _convert(datasets):
     dataset = 'train'
     inp_dir, gt_dir, nori_file, json_file = datasets[dataset]
     # convert to nori
@@ -57,8 +48,30 @@ def main():
         json.dump([res, img_paths], f)
         # json.dump(img_paths, f)
 
+def convert_gopro():
+    datasets = {
+        'train': [
+            's3://lzh-share/GoPro/train/input/',
+            's3://lzh-share/GoPro/train/target/',
+            's3://llcv-dataspace/GoPro/train.nori',
+            './nori_json/train.json'
+        ]
+    }
+    _convert(datasets)
+
+
+def convert_stereo():
+    datasets = {
+        'train': [
+            's3://lzh-share/stereo_blur_data/train/input/',
+            '/data/stereo_blur_data/train/target/',
+            's3://llcv-dataspace/stereo_blur_data/train.nori',
+            '/data/stereo_blur_data/train/train_nori.json'
+        ]
+    }
+    _convert(datasets)
 
 if __name__ == "__main__":
-    main()
+    convert_stereo()
 
 # vim: ts=4 sw=4 sts=4 expandtab

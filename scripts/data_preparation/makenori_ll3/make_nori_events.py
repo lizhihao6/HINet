@@ -53,14 +53,7 @@ def dir2nori(inp_dir, nori_file, info_file):
     return res
 
 
-def main():
-    datasets = {
-        'train': [
-            's3://lzh-share/GoPro/train/events/',
-            's3://llcv-dataspace/GoPro/train_events_v1.nori',
-            './nori_json/train_events_v1.info'
-        ]
-    }
+def _convert(datasets):
     dataset = 'train'
     inp_dir, nori_file, info_file = datasets[dataset]
 
@@ -77,8 +70,27 @@ def main():
     #     json.dump([res, img_paths], f)
     # json.dump(img_paths, f)
 
+def convert_gopro_events():
+    datasets = {
+        'train': [
+            's3://lzh-share/GoPro/train/events/',
+            's3://llcv-dataspace/GoPro/train_events_v1.nori',
+            './nori_json/train_events_v1.info'
+        ]
+    }
+    _convert(datasets)
+
+def convert_stereo_events():
+    datasets = {
+        'train': [
+            's3://lzh-share/stereo_blur_data/train/events/',
+            's3://llcv-dataspace/stereo_blur_data/train_events_clean.nori',
+            '/data/stereo_blur_data/train/train_events_clean.info'
+        ]
+    }
+    _convert(datasets)
 
 if __name__ == "__main__":
-    main()
+    convert_stereo_events()
 
 # vim: ts=4 sw=4 sts=4 expandtab

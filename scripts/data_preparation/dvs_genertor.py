@@ -26,16 +26,17 @@ V2E_PATH = "./.v2e"
 SLOMO_CHECKPOINT = "{}/.pretrain/SuperSloMo39.ckpt".format(V2E_PATH)
 POS_THRES, NEG_THRES = .2, .2  # use v2e --dvs_params clean will overwrite the --pos_thres and --neg_thres to .2
 APPEND_ARGS = "--disable_slomo"
-COMMAND = "python3 {}/v2e.py " \
-          "-i %(input)s " \
-          "-o /tmp/output/$(date) " \
-          "--avi_frame_rate=120 --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
-          "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
-          "--dvs_emulator_seed=0 --slomo_model={} --no_preview {} " \
-          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT, APPEND_ARGS)
 SIZE = (1280, 720)
 FPS = 960
 STEPS = 16
+COMMAND = "python3 {}/v2e.py " \
+          "-i %(input)s " \
+          "-o /tmp/output/$(date) " \
+          "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
+          "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
+          "--dvs_emulator_seed=0 --slomo_model={} --no_preview {} " \
+          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT, APPEND_ARGS)
+
 
 # env setting
 GPU_NUM = 8
@@ -269,5 +270,6 @@ if __name__ == '__main__':
     if len(stereo_pairs) - stop_id <= 8:
         stop_id = len(stereo_pairs)
     dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
-    dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
+    # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
+    dvs_genertor.run(["avi_to_events", "events_to_voxel"])
     # gopro_pairs = gopro_generate_pairs()
