@@ -13,7 +13,7 @@ from imageio import imread, imwrite
 from tqdm import tqdm
 
 # if write data to oss
-WRITE_TO_OSS = False
+WRITE_TO_OSS = True
 
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
