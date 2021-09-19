@@ -12,6 +12,9 @@ from aiisp_tool.utils.oss_helper import OSSHelper
 from imageio import imread, imwrite
 from tqdm import tqdm
 
+# if write data to oss
+WRITE_TO_OSS = False
+
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
 GOPRO_PATH = "./datasets/GoPro/"
@@ -94,7 +97,15 @@ class DVS_Genertor():
             im = imread(p).astype(np.float32) / 255.
             blur_im += np.power(im, 2.2) / len(sharp_paths)
         blur_im = np.power(blur_im, 1 / 2.2) * 255.
-        imwrite(DVS_Genertor._get_path(pair, "blur_path"), blur_im.astype(np.uint8))
+        blur_path = DVS_Genertor._get_path(pair, "blur_path")
+        if WRITE_TO_OSS:
+            helper = OSSHelper()
+            blur_im = cv2.imencode(".png", blur_im[:, :, ::-1])[1].tostring()
+            helper.upload(blur_im,
+                          "s3://lzh-share/stereo_blur_data/" + blur_path.split("stereo_blur_data/")[-1], "bin")
+        else:
+            imwrite(blur_path, blur_im.astype(np.uint8))
+
 
     @staticmethod
     def _sharps_to_avi(pair):
@@ -138,12 +149,12 @@ class DVS_Genertor():
         # maybe we need add a events denoising function here?
         events = events.astype(np.float32)
         events = events[:, 1] * POS_THRES - events[:, 0] * NEG_THRES
-        if "test" in voxel_path:
-            np.save(voxel_path, events)
-        else:
+        if WRITE_TO_OSS:
             helper = OSSHelper()
-            helper.upload(events.tobytes(),
-                          "s3://lzh-share/stereo_blur_data/" + voxel_path.split("stereo_blur_data/")[-1], "bin")
+            helper.upload(events,
+                          "s3://lzh-share/stereo_blur_data/" + voxel_path.split("stereo_blur_data/")[-1], "numpy")
+        else:
+            np.save(voxel_path, events)
 
         if remove_txt:
             os.remove(events_path)
