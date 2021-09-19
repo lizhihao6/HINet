@@ -150,6 +150,7 @@ class DVS_Genertor():
         # maybe we need add a events denoising function here?
         events = events.astype(np.float32)
         events = events[:, 1] * POS_THRES - events[:, 0] * NEG_THRES
+        print(events.max(), events.min(), flush=True)
         if WRITE_TO_OSS:
             helper = OSSHelper()
             helper.upload(events,
