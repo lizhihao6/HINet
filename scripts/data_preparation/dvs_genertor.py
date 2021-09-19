@@ -52,6 +52,7 @@ class DVS_Genertor():
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
+            avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
         )
 
     def run(self, pipeline):
@@ -167,6 +168,11 @@ class DVS_Genertor():
         DVS_Genertor.__events_to_voxel(pair, clean=False)
 
     @staticmethod
+    def _avi_to_voxel(pair):
+        DVS_Genertor._avi_to_events(pair)
+        DVS_Genertor._events_to_voxel(pair)
+
+    @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num, idx=None):
         idx = os.getpid() % core_num if idx is None else idx
         start_id, stop_id = data_num // core_num * idx, data_num // core_num * (idx + 1)
@@ -272,5 +278,5 @@ if __name__ == '__main__':
         stop_id = len(stereo_pairs)
     dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
-    dvs_genertor.run(["avi_to_events", "events_to_voxel"])
+    dvs_genertor.run(["avi_to_voxel"])
     # gopro_pairs = gopro_generate_pairs()
