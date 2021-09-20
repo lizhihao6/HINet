@@ -51,3 +51,23 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 
 </details>
 
+
+<details>
+  <summary>Image Deblur - stereo dataset (Click to expand) </summary>
+
+* prepare datasets (!!! only need when you want to regenerate events !!!)
+  ```
+  python3 scripts/data_preparation/dvs_genertor.py [0-8] (use rlanuch)
+  cd scripts/data_preparation && python3 stereo.py (use rlanuch)
+  cd scripts/data_preparation/make_nori_ll3/ && python3 make_nori.py (use rlanuch)
+  ```
+
+* eval
+  * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to ./experiments/pretrained_models/HINet-GoPro.pth
+  * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
+  
+* train
+
+  * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
+
+</details>

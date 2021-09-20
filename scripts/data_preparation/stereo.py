@@ -7,6 +7,7 @@
 import os
 from multiprocessing import Pool
 from os import path as osp
+import refile
 
 import cv2
 import numpy as np
@@ -71,7 +72,8 @@ def extract_subimages(opt):
     # print(f'Folder {save_folder} already exists. Exit.')
     # sys.exit(1)
 
-    img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
+    # img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
+    img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(opt['suffix']))))
 
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])
