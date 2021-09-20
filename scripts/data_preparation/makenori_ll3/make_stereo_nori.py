@@ -11,9 +11,10 @@ H = 720
 W = 1280
 
 
-def dir2nori(inp_dir, gt_dir, nori_file, json_dir):
+def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_dir):
     inputs = [x for x in refile.smart_glob(refile.smart_path_join(inp_dir, '*.png'))]
     gts = [x.replace(inp_dir, gt_dir) for x in inputs]
+    events = [x.replace(inp_dir, events_dir).replace("png", "npy") for x in inputs]
     nw = nori.remotewriteopen(nori_file)
     res = []
 
@@ -25,12 +26,12 @@ def dir2nori(inp_dir, gt_dir, nori_file, json_dir):
 
     for i in tqdm(range(len(inputs))):
         # inp_img = cv2.imdecode(np.frombuffer(refile.smart_open(inp, 'rb').read(), np.uint8), cv2.IMREAD_UNCHANGED,)
-        inp_img = np.frombuffer(refile.smart_open(inputs[i], 'rb').read(), dtype=np.uint8)
-        gt_img = np.frombuffer(refile.smart_open(gts[i], 'rb').read(), dtype=np.uint8)
-        inp_img_encode = inp_img.tobytes()
-        gt_img_encode = gt_img.tobytes()
-        nw.async_put(callback, inp_img_encode)
-        nw.async_put(callback, gt_img_encode)
+        # inp_img = np.frombuffer(refile.smart_open(inputs[i], 'rb').read(), dtype=np.uint8)
+        # gt_img = np.frombuffer(refile.smart_open(gts[i], 'rb').read(), dtype=np.uint8)
+        # inp_img_encode = inp_img.tobytes()
+        # gt_img_encode = gt_img.tobytes()
+        # nw.async_put(callback, inp_img_encode)
+        # nw.async_put(callback, gt_img_encode)
     nw.join()
     return res, inputs
 
