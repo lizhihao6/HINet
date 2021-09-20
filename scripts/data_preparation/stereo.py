@@ -8,8 +8,10 @@ import os
 from multiprocessing import Pool
 from os import path as osp
 import refile
+import pickle
 
 import cv2
+import sys
 import numpy as np
 from tqdm import tqdm
 import multiprocessing as mp
@@ -20,7 +22,17 @@ from basicsr.utils.create_lmdb import create_lmdb_for_gopro
 from dvs_genertor import stereo_generate_pairs, DVS_Genertor
 from makenori_ll3.make_nori import convert_stereo
 
+def _get_img_list(keywords, input_folder, suffix):
+    cache_file = ".tmp_{}".format(keywords)
+    if os.path.exists(cache_file):
+        with open(cache_file, "rb+") as f:
+            return pickle.load(f)
+    img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix))))
+    with open(cache_file, "wb+") as f:
+        pickle.dump(img_list, cache_file)
+
 def main():
+    idx = int(sys.argv[1])
     # gopro_pairs = stereo_generate_pairs()
     # dvs_genertor = DVS_Genertor(gopro_pairs)
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
@@ -35,14 +47,18 @@ def main():
     opt['crop_size'] = 512
     opt['step'] = 256
     opt['thresh_size'] = 0
-    extract_subimages(opt)
+    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/sharp_crops'
     opt['crop_size'] = 512
     opt['step'] = 256
     opt['thresh_size'] = 0
-    extract_subimages(opt)
+    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = 's3://data/stereo_blur_data/train/events'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/events_crops'
@@ -50,11 +66,13 @@ def main():
     opt['step'] = 256
     opt['thresh_size'] = 0
     opt['suffix'] = "npy"
-    extract_subimages(opt)
+    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
 
 
-def extract_subimages(opt):
+def extract_subimages(opt, img_list):
     """Crop images to subimages.
 
     Args:
@@ -73,7 +91,7 @@ def extract_subimages(opt):
     # sys.exit(1)
 
     # img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
-    img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(opt['suffix']))))
+    # img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(opt['suffix']))))
 
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])

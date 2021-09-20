@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import pickle
+from scripts.data_preparation.makenori_ll3.make_nori import convert_gopro
 
 import nori2 as nori
 import numpy as np
@@ -80,17 +81,8 @@ def convert_gopro_events():
     }
     _convert(datasets)
 
-def convert_stereo_events():
-    datasets = {
-        'train': [
-            's3://lzh-share/stereo_blur_data/train/events/',
-            's3://llcv-dataspace/stereo_blur_data/train_events_clean.nori',
-            '/data/stereo_blur_data/train/train_events_clean.info'
-        ]
-    }
-    _convert(datasets)
 
 if __name__ == "__main__":
-    convert_stereo_events()
+    convert_gopro()
 
 # vim: ts=4 sw=4 sts=4 expandtab
