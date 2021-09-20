@@ -27,10 +27,7 @@ def _get_img_list(keywords, input_folder, suffix):
     if os.path.exists(cache_file):
         with open(cache_file, "rb+") as f:
             return pickle.load(f)
-    if "s3" in input_folder:
-        img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
-    else:
-        img_list = list(scandir(input_folder, suffix=suffix, full_path=True))
+    img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
     return img_list
@@ -64,8 +61,8 @@ def main():
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
     # extract_subimages(opt, img_list[start_id:stop_id])
 
-    opt['input_folder'] = 's3://data/stereo_blur_data/train/events'
-    opt['save_folder'] = 's3://data/stereo_blur_data/train/events_crops'
+    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
+    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
     opt['crop_size'] = 512
     opt['step'] = 256
     opt['thresh_size'] = 0
