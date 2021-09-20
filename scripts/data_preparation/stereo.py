@@ -50,7 +50,7 @@ def main():
     opt['thresh_size'] = 0
     img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/sharp_crops'
@@ -59,7 +59,7 @@ def main():
     opt['thresh_size'] = 0
     img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = 's3://data/stereo_blur_data/train/events'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/events_crops'
@@ -69,7 +69,7 @@ def main():
     opt['suffix'] = "npy"
     img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    extract_subimages(opt, img_list[start_id:stop_id])
 
 
 
