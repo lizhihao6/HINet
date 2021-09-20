@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import os
 import pickle
-from scripts.data_preparation.makenori_ll3.make_nori import convert_gopro
 
 import nori2 as nori
 import numpy as np
 import refile
 from tqdm import tqdm
+
+from scripts.data_preparation.makenori_ll3.make_nori import convert_gopro
 
 H = 720
 W = 1280
@@ -70,6 +71,7 @@ def _convert(datasets):
     # with open(json_file, 'w') as f:
     #     json.dump([res, img_paths], f)
     # json.dump(img_paths, f)
+
 
 def convert_gopro_events():
     datasets = {

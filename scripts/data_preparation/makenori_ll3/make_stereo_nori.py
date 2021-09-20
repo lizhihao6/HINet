@@ -34,6 +34,7 @@ def dir2nori(inp_dir, gt_dir, nori_file, json_dir):
     nw.join()
     return res, inputs
 
+
 def _convert(datasets):
     dataset = 'train'
     inp_dir, gt_dir, nori_file, json_file = datasets[dataset]
@@ -47,6 +48,7 @@ def _convert(datasets):
     with open(json_file, 'w') as f:
         json.dump([res, img_paths], f)
         # json.dump(img_paths, f)
+
 
 def convert_gopro():
     datasets = {

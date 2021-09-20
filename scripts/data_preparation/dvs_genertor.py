@@ -36,8 +36,8 @@ COMMAND = "python3 {}/v2e.py " \
           "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview --skip_video_output {} " \
-          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT, APPEND_ARGS)
-
+          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
+                                                          APPEND_ARGS)
 
 # env setting
 GPU_NUM = 8
@@ -62,7 +62,8 @@ class DVS_Genertor():
         if "avi_to_voxel" in pipeline:
             assert ("avi_to_events" not in pipeline) and ("events_to_voxel" not in pipeline), "not compatibility"
             global COMMAND
-            COMMAND.replace("--dvs_text=%(output)s", "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
+            COMMAND.replace("--dvs_text=%(output)s",
+                            "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
         for p in pipeline:
             self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
 
@@ -98,7 +99,7 @@ class DVS_Genertor():
 
     @staticmethod
     def _local_path_to_oss(local_path):
-        return OSS_PREFIX + local_path.split(OSS_PREFIX.split("/")[-1]+"/")[-1]
+        return OSS_PREFIX + local_path.split(OSS_PREFIX.split("/")[-1] + "/")[-1]
 
     @staticmethod
     def _sharps_to_blur(pair):
@@ -115,7 +116,6 @@ class DVS_Genertor():
             helper.upload(blur_im, DVS_Genertor._local_path_to_oss(blur_path), "bin")
         else:
             imwrite(blur_path, blur_im.astype(np.uint8))
-
 
     @staticmethod
     def _sharps_to_avi(pair):
@@ -178,7 +178,7 @@ class DVS_Genertor():
     def _avi_to_voxel(pair):
         assert STEPS % 2 == 0 and STEPS != 0, "steps should be even and im_num should be odd"
         frames = len(DVS_Genertor._get_path(pair, "sharp_paths"))
-        diff = 1./float(FPS)*(frames-1)/STEPS
+        diff = 1. / float(FPS) * (frames - 1) / STEPS
 
         avi_path = DVS_Genertor._get_path(pair, "avi_path")
         clean_voxel_path = DVS_Genertor._get_path(pair, "clean_events_path")
@@ -186,17 +186,17 @@ class DVS_Genertor():
         if WRITE_TO_OSS:
             clean_voxel_path = DVS_Genertor._local_path_to_oss(clean_voxel_path)
             noisy_voxel_path = DVS_Genertor._local_path_to_oss(noisy_voxel_path)
-        
+
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': clean_voxel_path,
-                                                                                    'diff':diff,
-                                                                                    'steps':STEPS,
+                                                                                    'diff': diff,
+                                                                                    'steps': STEPS,
                                                                                     'dvs_params': "clean"}
         os.system(cmd)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
-                                                                                    'diff':diff,
-                                                                                    'steps':STEPS,
+                                                                                    'diff': diff,
+                                                                                    'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
 

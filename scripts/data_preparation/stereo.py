@@ -4,21 +4,20 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+import multiprocessing as mp
 import os
+import pickle
+import sys
 from multiprocessing import Pool
 from os import path as osp
-import refile
-import pickle
 
 import cv2
-import sys
 import numpy as np
-from tqdm import tqdm
-import multiprocessing as mp
+import refile
 from aiisp_tool.utils.oss_helper import OSSHelper
+from tqdm import tqdm
 
-from basicsr.utils import scandir
-from basicsr.utils.create_lmdb import create_lmdb_for_gopro
+
 # from dvs_genertor import stereo_generate_pairs, DVS_Genertor
 # from makenori_ll3.make_nori import convert_stereo
 
@@ -31,6 +30,7 @@ def _get_img_list(keywords, input_folder, suffix):
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
     return img_list
+
 
 def main():
     idx = int(sys.argv[1])
@@ -70,7 +70,6 @@ def main():
     img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
     extract_subimages(opt, img_list[start_id:stop_id])
-
 
 
 def extract_subimages(opt, img_list):
@@ -144,7 +143,6 @@ def worker(path, opt):
             img = helper.download(path, "numpy")
         else:
             img = np.load(path)
-        
 
     if img.ndim == 2:
         h, w = img.shape
@@ -167,11 +165,11 @@ def worker(path, opt):
             cropped_img = img[x:x + crop_size, y:y + crop_size, ...]
             cropped_img = np.ascontiguousarray(cropped_img)
             save_path = osp.join(opt['save_folder'],
-                                f'{img_name}_s{index:03d}{extension}')
+                                 f'{img_name}_s{index:03d}{extension}')
             if "npy" not in path:
                 if "s3" not in path:
                     cv2.imwrite(save_path, cropped_img,
-                        [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
+                                [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
                 else:
                     cropped_img = cv2.imencode(".png", cropped_img)[1].tostring()
                     helper.upload(cropped_img, save_path, "bin")
