@@ -16,10 +16,8 @@ from aiisp_tool.utils.oss_helper import OSSHelper
 
 from basicsr.utils import scandir
 from basicsr.utils.create_lmdb import create_lmdb_for_gopro
-from scripts.data_preparation.dvs_genertor import stereo_generate_pairs, DVS_Genertor
-from scripts.data_preparation.makenori_ll3.make_nori import convert_stereo
-from scripts.data_preparation.dvs_genertor import POS_THRES, NEG_THRES
-assert POS_THRES==NEG_THRES, "for convert to uint8"
+from .dvs_genertor import stereo_generate_pairs, DVS_Genertor
+from .makenori_ll3.make_nori import convert_stereo
 
 def main():
     # gopro_pairs = stereo_generate_pairs()
@@ -125,8 +123,6 @@ def worker(path, opt):
             img = helper.download(path, "numpy")
         else:
             img = np.load(path)
-        # from [steps, h, w] to [h, w, steps]
-        img = img.transpose([1, 2, 0])*POS_THRES
         
 
     if img.ndim == 2:
