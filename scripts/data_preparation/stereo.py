@@ -30,6 +30,7 @@ def _get_img_list(keywords, input_folder, suffix):
     img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix))))
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
+    return img_list
 
 def main():
     idx = int(sys.argv[1])
