@@ -27,7 +27,7 @@ def _get_img_list(keywords, input_folder, suffix):
     if os.path.exists(cache_file):
         with open(cache_file, "rb+") as f:
             return pickle.load(f)
-    img_list = list(refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix))))
+    img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
     return img_list
