@@ -19,8 +19,8 @@ from aiisp_tool.utils.oss_helper import OSSHelper
 
 from basicsr.utils import scandir
 from basicsr.utils.create_lmdb import create_lmdb_for_gopro
-from dvs_genertor import stereo_generate_pairs, DVS_Genertor
-from makenori_ll3.make_nori import convert_stereo
+# from dvs_genertor import stereo_generate_pairs, DVS_Genertor
+# from makenori_ll3.make_nori import convert_stereo
 
 def _get_img_list(keywords, input_folder, suffix):
     cache_file = ".tmp_{}".format(keywords)
