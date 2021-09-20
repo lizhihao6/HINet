@@ -30,7 +30,7 @@ def _get_img_list(keywords, input_folder, suffix):
     if "s3" in input_folder:
         img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
     else:
-        img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
+        img_list = list(scandir(input_folder, suffix=suffix, full_path=True))
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
     return img_list
