@@ -27,7 +27,10 @@ def _get_img_list(keywords, input_folder, suffix):
     if os.path.exists(cache_file):
         with open(cache_file, "rb+") as f:
             return pickle.load(f)
-    img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
+    if "s3" in input_folder:
+        img_list = [x for x in refile.smart_glob(refile.smart_path_join(input_folder, '*.{}'.format(suffix)))]
+    else:
+        img_list = list(scandir(input_folder, suffix=opt['suffix'], full_path=True))
     with open(cache_file, "wb+") as f:
         pickle.dump(img_list, f)
     return img_list
@@ -50,7 +53,7 @@ def main():
     opt['thresh_size'] = 0
     img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/sharp_crops'
@@ -59,7 +62,7 @@ def main():
     opt['thresh_size'] = 0
     img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = 's3://data/stereo_blur_data/train/events'
     opt['save_folder'] = 's3://data/stereo_blur_data/train/events_crops'
@@ -69,7 +72,7 @@ def main():
     opt['suffix'] = "npy"
     img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
 
 
