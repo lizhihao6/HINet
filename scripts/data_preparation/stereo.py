@@ -57,7 +57,7 @@ def main():
     opt['crop_size'] = 512
     opt['step'] = 256
     opt['thresh_size'] = 0
-    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
     # extract_subimages(opt, img_list[start_id:stop_id])
 
@@ -67,7 +67,7 @@ def main():
     opt['step'] = 256
     opt['thresh_size'] = 0
     opt['suffix'] = "npy"
-    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
     # extract_subimages(opt, img_list[start_id:stop_id])
 
