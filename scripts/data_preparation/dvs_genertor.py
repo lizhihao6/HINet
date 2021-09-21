@@ -35,7 +35,7 @@ FPS = 960
 STEPS = 16
 COMMAND = "python3 {}/v2e.py " \
           "-i %(input)s " \
-          "-o /tmp/output/$(date) " \
+          "-o %(output_folder)s " \
           "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview --skip_video_output {} " \
@@ -129,11 +129,14 @@ class DVS_Genertor():
         avi_path = DVS_Genertor._get_path(pair, "avi_path")
         clean_events_path = DVS_Genertor._get_path(pair, "clean_events_path")
         noisy_events_path = DVS_Genertor._get_path(pair, "noisy_events_path")
+        tmp_dir = "/tmp/{}".format(os.getpid())
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output_folder': tmp_dir,
                                                                                     'output': clean_events_path,
                                                                                     'dvs_params': "clean"}
         os.system(cmd)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output_folder': tmp_dir,
                                                                                     'output': noisy_events_path,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
@@ -185,7 +188,9 @@ class DVS_Genertor():
         if WRITE_TO_OSS:
             clean_voxel_path = LOCAL_TO_OSS(clean_voxel_path)
             noisy_voxel_path = LOCAL_TO_OSS(noisy_voxel_path)
+        tmp_dir = "/tmp/{}".format(os.getpid())
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output_folder': tmp_dir,
                                                                                     'output': clean_voxel_path,
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
@@ -194,6 +199,7 @@ class DVS_Genertor():
         os.system(cmd)
         print("bbbb", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+                                                                                    'output_folder': tmp_dir,
                                                                                     'output': noisy_voxel_path,
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
