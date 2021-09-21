@@ -42,6 +42,7 @@ COMMAND = "python3 {}/v2e.py " \
           "--dvs_text=%(output)s".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
                                                           APPEND_ARGS)
 # env setting
+#  > /dev/null 2>&1
 GPU_NUM = 8
 # CPU_NUM = int(mp.cpu_count())
 CPU_NUM = 2
@@ -190,7 +191,7 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        print(cmd, flush=True)
+        print("aaaa", flush=True)
         os.system(cmd)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
