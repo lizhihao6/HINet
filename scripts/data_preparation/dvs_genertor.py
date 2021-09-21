@@ -43,8 +43,8 @@ COMMAND = "python3 {}/v2e.py " \
                                                           APPEND_ARGS)
 # env setting > /dev/null 2>&1
 GPU_NUM = 8
-# CPU_NUM = int(mp.cpu_count())
-CPU_NUM = 1
+CPU_NUM = int(mp.cpu_count())
+# CPU_NUM = 1
 
 
 class DVS_Genertor():
