@@ -3,6 +3,7 @@ import multiprocessing as mp
 import os
 import pickle
 import sys
+idx = 0
 from multiprocessing.dummy import Pool
 from pathlib import Path
 
@@ -37,9 +38,8 @@ COMMAND = "python3 {}/v2e.py " \
           "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview --skip_video_output {} " \
-          "--dvs_text=%(output)s ".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
+          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
                                                           APPEND_ARGS)
-# > /dev/null 2>&1
 # env setting
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
@@ -183,7 +183,6 @@ class DVS_Genertor():
         if WRITE_TO_OSS:
             clean_voxel_path = LOCAL_TO_OSS(clean_voxel_path)
             noisy_voxel_path = LOCAL_TO_OSS(noisy_voxel_path)
-        print(clean_voxel_path, flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': clean_voxel_path,
                                                                                     'diff': diff,
@@ -298,12 +297,11 @@ def gopro_generate_pairs():
 if __name__ == '__main__':
     stereo_pairs = stereo_generate_pairs()
     # idx = int(sys.argv[1])
-    # start_id = idx * len(stereo_pairs) // 8
-    # stop_id = (idx + 1) * len(stereo_pairs) // 8
-    # if len(stereo_pairs) - stop_id <= 8:
-        # stop_id = len(stereo_pairs)
-    # dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
-    dvs_genertor = DVS_Genertor(stereo_pairs)
+    start_id = idx * len(stereo_pairs) // 8
+    stop_id = (idx + 1) * len(stereo_pairs) // 8
+    if len(stereo_pairs) - stop_id <= 8:
+        stop_id = len(stereo_pairs)
+    dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
     dvs_genertor.run(["avi_to_voxel"])
     # gopro_pairs = gopro_generate_pairs()
