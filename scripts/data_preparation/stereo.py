@@ -7,7 +7,6 @@
 import multiprocessing as mp
 import os
 import pickle
-import sys
 from multiprocessing import Pool
 from os import path as osp
 
@@ -34,7 +33,6 @@ def _get_img_list(keywords, input_folder, suffix):
 
 
 def main():
-    idx = int(sys.argv[1])
     # gopro_pairs = stereo_generate_pairs()
     # dvs_genertor = DVS_Genertor(gopro_pairs)
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
@@ -50,8 +48,7 @@ def main():
     # opt['step'] = 256
     # opt['thresh_size'] = 0
     # img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
-    # start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    # extract_subimages(opt, img_list)
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/sharp_crops'
@@ -59,8 +56,7 @@ def main():
     opt['step'] = 256
     opt['thresh_size'] = 0
     img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
-    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    extract_subimages(opt, img_list)
 
     opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
     opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
@@ -69,8 +65,7 @@ def main():
     opt['thresh_size'] = 0
     opt['suffix'] = "npy"
     img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
-    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    extract_subimages(opt, img_list)
 
 
 def extract_subimages(opt, img_list):
