@@ -54,7 +54,7 @@ class DVS_Genertor():
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
-            avi_to_voxel=(DVS_Genertor._avi_to_voxel, 2),
+            avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
         )
 
     def run(self, pipeline):
@@ -188,16 +188,13 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        print(cmd, flush=True)
         os.system(cmd)
-        print("aaa", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
-        print("bbb", flush=True)
 
     @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num, idx=None):
