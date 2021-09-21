@@ -39,12 +39,12 @@ COMMAND = "python3 {}/v2e.py " \
           "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview --skip_video_output {} " \
-          "--dvs_text=%(output)s ".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
+          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
                                                           APPEND_ARGS)
-# env setting > /dev/null 2>&1
+# env setting
 GPU_NUM = 8
 # CPU_NUM = int(mp.cpu_count())
-CPU_NUM = 1
+CPU_NUM = 2
 
 
 class DVS_Genertor():
