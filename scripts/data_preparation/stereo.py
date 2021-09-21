@@ -166,15 +166,15 @@ def worker(path, opt):
             cropped_img = img[x:x + crop_size, y:y + crop_size, ...]
             cropped_img = np.ascontiguousarray(cropped_img)
             save_path = osp.join(opt['save_folder'],
-                                 f'{img_name}_s{index:03d}{extension}')
+                                 f'{img_name}_s{index:03d}{extension}')                        
+            print(save_path, flush=True)
+            exit(-1)
             if "npy" not in path:
                 if "s3://" not in path:
                     cv2.imwrite(save_path, cropped_img,
                                 [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
                 else:
                     cropped_img = cv2.imencode(".png", cropped_img)[1].tostring()
-                    print(save_path, flush=True)
-                    exit(-1)
                     helper.upload(cropped_img, save_path, "bin")
             else:
                 if "s3://" not in path:
