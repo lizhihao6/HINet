@@ -38,7 +38,7 @@ COMMAND = "python3 {}/v2e.py " \
           "--avi_frame_rate={} --overwrite --auto_timestamp_resolution --timestamp_resolution=.001 " \
           "--output_height 720 --output_width 1280  --dvs_params %(dvs_params)s --pos_thres={} --neg_thres={} " \
           "--dvs_emulator_seed=0 --slomo_model={} --no_preview --skip_video_output {} " \
-          "--dvs_text=%(output)s > /dev/null 2>&1".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
+          "--dvs_text=%(output)s ".format(V2E_PATH, FPS, POS_THRES, NEG_THRES, SLOMO_CHECKPOINT,
                                                           APPEND_ARGS)
 # env setting
 GPU_NUM = 8
@@ -54,7 +54,7 @@ class DVS_Genertor():
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
-            avi_to_voxel=(DVS_Genertor._avi_to_voxel, 1),
+            avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
         )
 
     def run(self, pipeline):
@@ -131,10 +131,12 @@ class DVS_Genertor():
                                                                                     'output': clean_events_path,
                                                                                     'dvs_params': "clean"}
         os.system(cmd)
+        print("aaa", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_events_path,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
+        print("aaa", flush=True)
 
     @staticmethod
     def __events_to_voxel(pair, clean=True, remove_txt=True):
