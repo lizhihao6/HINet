@@ -15,6 +15,7 @@ from tqdm import tqdm
 # if write data to oss
 WRITE_TO_OSS = True
 OSS_PREFIX = "s3://lzh-share/stereo_blur_data/"
+LOCAL_TO_OSS = lambda local_path : OSS_PREFIX+local_path.split("stereo_blur_data/")[-1]
 
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
@@ -98,11 +99,6 @@ class DVS_Genertor():
         return CONVERT_FN[name](pair)
 
     @staticmethod
-    def _local_path_to_oss(local_path):
-        print(OSS_PREFIX.split("/"))
-        return OSS_PREFIX + local_path.split(OSS_PREFIX.split("/")[-1] + "/")[-1]
-
-    @staticmethod
     def _sharps_to_blur(pair):
         sharp_paths = DVS_Genertor._get_path(pair, "sharp_paths")
         blur_im = np.zeros([SIZE[1], SIZE[0], 3], dtype=np.float32)
@@ -114,7 +110,7 @@ class DVS_Genertor():
         if WRITE_TO_OSS:
             helper = OSSHelper()
             blur_im = cv2.imencode(".png", blur_im[:, :, ::-1])[1].tostring()
-            helper.upload(blur_im, DVS_Genertor._local_path_to_oss(blur_path), "bin")
+            helper.upload(blur_im, LOCAL_TO_OSS(blur_path), "bin")
         else:
             imwrite(blur_path, blur_im.astype(np.uint8))
 
@@ -163,7 +159,7 @@ class DVS_Genertor():
         print(events.max(), events.min(), flush=True)
         if WRITE_TO_OSS:
             helper = OSSHelper()
-            helper.upload(events, DVS_Genertor._local_path_to_oss(voxel_path), "numpy")
+            helper.upload(events, LOCAL_TO_OSS(voxel_path), "numpy")
         else:
             np.save(voxel_path, events)
 
@@ -184,10 +180,10 @@ class DVS_Genertor():
         avi_path = DVS_Genertor._get_path(pair, "avi_path")
         clean_voxel_path = DVS_Genertor._get_path(pair, "clean_voxel_path")
         noisy_voxel_path = DVS_Genertor._get_path(pair, "noisy_voxel_path")
-        print(clean_voxel_path, flush=True)
         if WRITE_TO_OSS:
-            clean_voxel_path = DVS_Genertor._local_path_to_oss(clean_voxel_path)
-            noisy_voxel_path = DVS_Genertor._local_path_to_oss(noisy_voxel_path)
+            clean_voxel_path = LOCAL_TO_OSS(clean_voxel_path)
+            noisy_voxel_path = LOCAL_TO_OSS(noisy_voxel_path)
+        print(clean_voxel_path, flush=True)
         exit()
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': clean_voxel_path,
