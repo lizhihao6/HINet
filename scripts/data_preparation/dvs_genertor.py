@@ -204,6 +204,8 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
+        print(cmd)
+        exit(1)
         os.system(cmd)
 
     @staticmethod
