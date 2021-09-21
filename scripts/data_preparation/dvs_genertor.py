@@ -187,17 +187,13 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        print(cmd, flush=True)
         os.system(cmd)
-        print("aaa", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
-        print("aaa", flush=True)
-        exit(-1)
 
     @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num, idx=None):
@@ -299,11 +295,12 @@ def gopro_generate_pairs():
 if __name__ == '__main__':
     stereo_pairs = stereo_generate_pairs()
     # idx = int(sys.argv[1])
-    start_id = idx * len(stereo_pairs) // 8
-    stop_id = (idx + 1) * len(stereo_pairs) // 8
-    if len(stereo_pairs) - stop_id <= 8:
-        stop_id = len(stereo_pairs)
-    dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
+    # start_id = idx * len(stereo_pairs) // 8
+    # stop_id = (idx + 1) * len(stereo_pairs) // 8
+    # if len(stereo_pairs) - stop_id <= 8:
+        # stop_id = len(stereo_pairs)
+    # dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
+    dvs_genertor = DVS_Genertor(stereo_pairs)
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
     dvs_genertor.run(["avi_to_voxel"])
     # gopro_pairs = gopro_generate_pairs()
