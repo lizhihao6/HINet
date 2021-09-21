@@ -75,7 +75,9 @@ class DVS_Genertor():
         pool = Pool(num_cores)
         results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores, idx,)) for idx in
                    range(num_cores)]
-        results = [p.get() for p in results]
+        # results = [p.get() for p in results]
+        pool.close()
+        pool.join()
 
     @staticmethod
     def _son_process(pairs, fn, num_cores, idx):
