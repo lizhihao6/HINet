@@ -43,14 +43,14 @@ def main():
     opt['compression_level'] = 3
     opt['suffix'] = "png"
 
-    # opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
-    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
-    # opt['crop_size'] = 512
-    # opt['step'] = 256
-    # opt['thresh_size'] = 0
-    # img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
-    # start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
+    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
+    opt['crop_size'] = 512
+    opt['step'] = 256
+    opt['thresh_size'] = 0
+    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/sharp_crops'
@@ -61,15 +61,15 @@ def main():
     start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
     extract_subimages(opt, img_list[start_id:stop_id])
 
-    # opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
-    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
-    # opt['crop_size'] = 512
-    # opt['step'] = 256
-    # opt['thresh_size'] = 0
-    # opt['suffix'] = "npy"
-    # img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
-    # start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    # extract_subimages(opt, img_list[start_id:stop_id])
+    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
+    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
+    opt['crop_size'] = 512
+    opt['step'] = 256
+    opt['thresh_size'] = 0
+    opt['suffix'] = "npy"
+    img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
+    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    extract_subimages(opt, img_list[start_id:stop_id])
 
 
 def extract_subimages(opt, img_list):
@@ -83,9 +83,9 @@ def extract_subimages(opt, img_list):
     """
     input_folder = opt['input_folder']
     save_folder = opt['save_folder']
-    if not osp.exists(save_folder):
-        os.makedirs(save_folder)
-        print(f'mkdir {save_folder} ...')
+    # if not osp.exists(save_folder):
+        # os.makedirs(save_folder)
+        # print(f'mkdir {save_folder} ...')
     # else:
     # print(f'Folder {save_folder} already exists. Exit.')
     # sys.exit(1)
@@ -167,14 +167,14 @@ def worker(path, opt):
             save_path = osp.join(opt['save_folder'],
                                  f'{img_name}_s{index:03d}{extension}')
             if "npy" not in path:
-                if "s3" not in path:
+                if "s3://" not in path:
                     cv2.imwrite(save_path, cropped_img,
                                 [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
                 else:
                     cropped_img = cv2.imencode(".png", cropped_img)[1].tostring()
                     helper.upload(cropped_img, save_path, "bin")
             else:
-                if "s3" not in path:
+                if "s3://" not in path:
                     np.save(save_path, cropped_img)
                 else:
                     helper.upload(cropped_img, save_path, "numpy")
