@@ -53,7 +53,7 @@ class DVS_Genertor():
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
-            avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
+            avi_to_voxel=(DVS_Genertor._avi_to_voxel, 1),
         )
 
     def run(self, pipeline):
