@@ -4,8 +4,8 @@ import os
 import pickle
 # import sys
 idx = 0
-# from multiprocessing.dummy import Pool
-from multiprocessing import Pool
+from multiprocessing.dummy import Pool
+# from multiprocessing import Pool
 from pathlib import Path
 
 import cv2
@@ -195,9 +195,9 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        print("aaaa", flush=True)
+        print("{} start clean".format(os.getpid()), flush=True)
         os.system(cmd)
-        print("bbbb", flush=True)
+        print("{} start noisy".format(os.getpid()), flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output_folder': tmp_dir,
                                                                                     'output': noisy_voxel_path,
