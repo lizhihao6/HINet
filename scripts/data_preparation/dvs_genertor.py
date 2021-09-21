@@ -192,6 +192,7 @@ class DVS_Genertor():
                                                                                     'dvs_params': "clean"}
         print("aaaa", flush=True)
         os.system(cmd)
+        print("bbbb", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
                                                                                     'diff': diff,
