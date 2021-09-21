@@ -43,15 +43,14 @@ COMMAND = "python3 {}/v2e.py " \
                                                           APPEND_ARGS)
 # env setting
 GPU_NUM = 8
-CPU_NUM = int(mp.cpu_count())
+# CPU_NUM = int(mp.cpu_count())
+CPU_NUM = 2
 
 
 class DVS_Genertor():
     def __init__(self, pairs=None):
         self.pairs = pairs
         avi_to_events_core_num = GPU_NUM if len(APPEND_ARGS) == 0 else CPU_NUM
-        print(CPU_NUM, flush=True)
-        exit(-1)
         self.PIPELINE = dict(
             sharps_to_blur=(DVS_Genertor._sharps_to_blur, CPU_NUM),
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
