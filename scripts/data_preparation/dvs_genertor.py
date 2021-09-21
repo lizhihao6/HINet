@@ -44,7 +44,6 @@ COMMAND = "python3 {}/v2e.py " \
 # env setting 
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
-# CPU_NUM = 1
 
 
 class DVS_Genertor():
@@ -68,25 +67,24 @@ class DVS_Genertor():
             COMMAND = COMMAND.replace("--dvs_text=%(output)s",
                             "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
         for p in pipeline:
-            self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
+            self._multiprocessing(p)
 
-    def _multiprocessing(self, fn, num_cores):
-        print("Process: {}".format(fn.__name__))
+    def _multiprocessing(self, pipeline):
+        print("Process: {}".format(pipeline))
+        num_cores = self.PIPELINE[pipeline][1]
         pool = Pool(num_cores)
-        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores, idx,)) for idx in
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, pipeline, num_cores, idx,)) for idx in
                    range(num_cores)]
-        # results = [p.get() for p in results]
         pool.close()
         pool.join()
 
-    @staticmethod
-    def _son_process(pairs, fn, num_cores, idx):
+    def _son_process(pairs, fn_name, num_cores, idx):
         start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores, idx)
         iter = tqdm(pairs[start_id:stop_id]) if start_id == 0 else pairs[start_id: stop_id]
         for pair in iter:
             if start_id == 0:
                 print("", flush=True)
-            fn(pair)
+            DVS_Genertor.__getattribute__("_{}".format(fn_name))(pair)
 
     @staticmethod
     def _get_path(pair, name):
