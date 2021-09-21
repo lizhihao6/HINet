@@ -186,7 +186,8 @@ class DVS_Genertor():
         if WRITE_TO_OSS:
             clean_voxel_path = DVS_Genertor._local_path_to_oss(clean_voxel_path)
             noisy_voxel_path = DVS_Genertor._local_path_to_oss(noisy_voxel_path)
-
+        print(clean_voxel_path, flush=True)
+        exit()
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': clean_voxel_path,
                                                                                     'diff': diff,
