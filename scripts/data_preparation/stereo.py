@@ -43,14 +43,14 @@ def main():
     opt['compression_level'] = 3
     opt['suffix'] = "png"
 
-    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
-    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
-    opt['crop_size'] = 512
-    opt['step'] = 256
-    opt['thresh_size'] = 0
-    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
-    start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
-    extract_subimages(opt, img_list[start_id:stop_id])
+    # opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
+    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
+    # opt['crop_size'] = 512
+    # opt['step'] = 256
+    # opt['thresh_size'] = 0
+    # img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    # start_id, stop_id = idx * len(img_list) // 8, (idx + 1) * len(img_list) // 8
+    # extract_subimages(opt, img_list[start_id:stop_id])
 
     opt['input_folder'] = '/data/stereo_blur_data/train/target'
     opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/sharp_crops'
