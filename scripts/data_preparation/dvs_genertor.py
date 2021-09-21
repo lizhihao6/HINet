@@ -42,7 +42,7 @@ COMMAND = "python3 {}/v2e.py " \
 # env setting
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
-TOTAL_RLANCH = 16
+TOTAL_RLANCH = 8
 
 
 class DVS_Genertor():
