@@ -181,8 +181,8 @@ class DVS_Genertor():
         diff = 1. / float(FPS) * (frames - 1) / STEPS
 
         avi_path = DVS_Genertor._get_path(pair, "avi_path")
-        clean_voxel_path = DVS_Genertor._get_path(pair, "clean_events_path")
-        noisy_voxel_path = DVS_Genertor._get_path(pair, "noisy_events_path")
+        clean_voxel_path = DVS_Genertor._get_path(pair, "clean_voxel_path")
+        noisy_voxel_path = DVS_Genertor._get_path(pair, "noisy_voxel_path")
         if WRITE_TO_OSS:
             clean_voxel_path = DVS_Genertor._local_path_to_oss(clean_voxel_path)
             noisy_voxel_path = DVS_Genertor._local_path_to_oss(noisy_voxel_path)
