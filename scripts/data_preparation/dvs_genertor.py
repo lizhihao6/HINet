@@ -49,18 +49,21 @@ CPU_NUM = int(mp.cpu_count())
 class DVS_Genertor():
     def __init__(self, pairs=None):
         self.pairs = pairs
+        
+    @staticmethod
+    def _get_function_by_name(fn_name):
         avi_to_events_core_num = GPU_NUM if len(APPEND_ARGS) == 0 else CPU_NUM
-        self.PIPELINE = dict(
+        PIPELINE = dict(
             sharps_to_blur=(DVS_Genertor._sharps_to_blur, CPU_NUM),
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
             avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
         )
+        assert fn_name in PIPELINE.keys()
+        return PIPELINE[fn_name]
 
     def run(self, pipeline):
-        for p in pipeline:
-            assert p in self.PIPELINE.keys()
         if "avi_to_voxel" in pipeline:
             assert ("avi_to_events" not in pipeline) and ("events_to_voxel" not in pipeline), "not compatibility"
             global COMMAND
@@ -69,22 +72,23 @@ class DVS_Genertor():
         for p in pipeline:
             self._multiprocessing(p)
 
-    def _multiprocessing(self, pipeline):
-        print("Process: {}".format(pipeline))
-        num_cores = self.PIPELINE[pipeline][1]
+    def _multiprocessing(self, fn_name):
+        print("Process: {}".format(fn_name))
+        num_cores = self._get_function_by_name(fn_name)[1]
         pool = Pool(num_cores)
-        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, pipeline, num_cores, idx,)) for idx in
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn_name, num_cores, idx,)) for idx in
                    range(num_cores)]
         pool.close()
         pool.join()
 
     def _son_process(pairs, fn_name, num_cores, idx):
+        fn = DVS_Genertor._get_function_by_name(fn_name)[0]
         start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores, idx)
         iter = tqdm(pairs[start_id:stop_id]) if start_id == 0 else pairs[start_id: stop_id]
         for pair in iter:
             if start_id == 0:
                 print("", flush=True)
-            DVS_Genertor.__getattribute__("_{}".format(fn_name))(pair)
+            fn(pair)
 
     @staticmethod
     def _get_path(pair, name):
