@@ -65,6 +65,7 @@ class DVS_Genertor():
             global COMMAND
             COMMAND.replace("--dvs_text=%(output)s",
                             "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
+            print(COMMAND)
         for p in pipeline:
             self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
 
