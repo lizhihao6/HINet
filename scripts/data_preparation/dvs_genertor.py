@@ -198,6 +198,7 @@ class DVS_Genertor():
         print("aaaa", flush=True)
         os.system(cmd)
         print("bbbb", flush=True)
+        os.removedirs(tmp_dir)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output_folder': tmp_dir,
                                                                                     'output': noisy_voxel_path,
@@ -205,6 +206,7 @@ class DVS_Genertor():
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
+        os.removedirs(tmp_dir)
 
     @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num, idx=None):
