@@ -63,8 +63,9 @@ class DVS_Genertor():
         if "avi_to_voxel" in pipeline:
             assert ("avi_to_events" not in pipeline) and ("events_to_voxel" not in pipeline), "not compatibility"
             global COMMAND
-            COMMAND.replace("--dvs_text=%(output)s",
+            COMMAND = COMMAND.replace("--dvs_text=%(output)s",
                             "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
+            
             print(COMMAND)
         for p in pipeline:
             self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
