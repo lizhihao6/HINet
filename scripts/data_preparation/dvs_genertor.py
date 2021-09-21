@@ -4,8 +4,7 @@ import os
 import pickle
 # import sys
 idx = 0
-from multiprocessing.dummy import Pool
-# from multiprocessing import Pool
+from multiprocessing import Pool
 from pathlib import Path
 
 import cv2
@@ -44,45 +43,43 @@ COMMAND = "python3 {}/v2e.py " \
 # env setting 
 GPU_NUM = 8
 CPU_NUM = int(mp.cpu_count())
+# CPU_NUM = 1
 
 
 class DVS_Genertor():
     def __init__(self, pairs=None):
         self.pairs = pairs
-        
-    @staticmethod
-    def _get_function_by_name(fn_name):
         avi_to_events_core_num = GPU_NUM if len(APPEND_ARGS) == 0 else CPU_NUM
-        PIPELINE = dict(
+        self.PIPELINE = dict(
             sharps_to_blur=(DVS_Genertor._sharps_to_blur, CPU_NUM),
             sharps_to_avi=(DVS_Genertor._sharps_to_avi, CPU_NUM),
             avi_to_events=(DVS_Genertor._avi_to_events, avi_to_events_core_num),
             events_to_voxel=(DVS_Genertor._events_to_voxel, CPU_NUM),
             avi_to_voxel=(DVS_Genertor._avi_to_voxel, CPU_NUM),
         )
-        assert fn_name in PIPELINE.keys()
-        return PIPELINE[fn_name]
 
     def run(self, pipeline):
+        for p in pipeline:
+            assert p in self.PIPELINE.keys()
         if "avi_to_voxel" in pipeline:
             assert ("avi_to_events" not in pipeline) and ("events_to_voxel" not in pipeline), "not compatibility"
             global COMMAND
             COMMAND = COMMAND.replace("--dvs_text=%(output)s",
                             "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
         for p in pipeline:
-            self._multiprocessing(p)
+            self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
 
-    def _multiprocessing(self, fn_name):
-        print("Process: {}".format(fn_name))
-        num_cores = self._get_function_by_name(fn_name)[1]
+    def _multiprocessing(self, fn, num_cores):
+        print("Process: {}".format(fn.__name__))
         pool = Pool(num_cores)
-        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn_name, num_cores, idx,)) for idx in
+        results = [pool.apply_async(DVS_Genertor._son_process, args=(self.pairs, fn, num_cores, idx,)) for idx in
                    range(num_cores)]
+        # results = [p.get() for p in results]
         pool.close()
         pool.join()
 
-    def _son_process(pairs, fn_name, num_cores, idx):
-        fn = DVS_Genertor._get_function_by_name(fn_name)[0]
+    @staticmethod
+    def _son_process(pairs, fn, num_cores, idx):
         start_id, stop_id = DVS_Genertor._get_start_id_and_stop_id(len(pairs), num_cores, idx)
         iter = tqdm(pairs[start_id:stop_id]) if start_id == 0 else pairs[start_id: stop_id]
         for pair in iter:
@@ -199,10 +196,9 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        # print("{} start clean".format(os.getpid()), flush=True)
-        print(mp.current_process(), flush=True)
+        print("{} start clean".format(os.getpid()), flush=True)
         os.system(cmd)
-        # print("{} start noisy".format(os.getpid()), flush=True)
+        print("{} start noisy".format(os.getpid()), flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output_folder': tmp_dir,
                                                                                     'output': noisy_voxel_path,
