@@ -99,7 +99,7 @@ class DVS_Genertor():
 
     @staticmethod
     def _local_path_to_oss(local_path):
-        print(local_path.split(OSS_PREFIX.split("/")[-1] + "/")[-1])
+        print(OSS_PREFIX.split("/")[-1] + "/"))
         return OSS_PREFIX + local_path.split(OSS_PREFIX.split("/")[-1] + "/")[-1]
 
     @staticmethod
