@@ -198,7 +198,7 @@ class DVS_Genertor():
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
         # print("{} start clean".format(os.getpid()), flush=True)
-        print(multiprocessing.current_process(), flush=True)
+        print(mp.current_process(), flush=True)
         os.system(cmd)
         # print("{} start noisy".format(os.getpid()), flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
