@@ -65,8 +65,6 @@ class DVS_Genertor():
             global COMMAND
             COMMAND = COMMAND.replace("--dvs_text=%(output)s",
                             "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
-            
-            print(COMMAND)
         for p in pipeline:
             self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
 
@@ -190,9 +188,6 @@ class DVS_Genertor():
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
-        print(cmd, flush=True)
-        sys.exit(1)
-        exit(-1)
         os.system(cmd)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
