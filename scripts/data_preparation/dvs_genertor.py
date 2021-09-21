@@ -131,12 +131,10 @@ class DVS_Genertor():
                                                                                     'output': clean_events_path,
                                                                                     'dvs_params': "clean"}
         os.system(cmd)
-        print("aaa", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_events_path,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
-        print("aaa", flush=True)
 
     @staticmethod
     def __events_to_voxel(pair, clean=True, remove_txt=True):
@@ -191,12 +189,14 @@ class DVS_Genertor():
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "clean"}
         os.system(cmd)
+        print("aaa", flush=True)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output': noisy_voxel_path,
                                                                                     'diff': diff,
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
+        print("aaa", flush=True)
         exit(-1)
 
     @staticmethod
