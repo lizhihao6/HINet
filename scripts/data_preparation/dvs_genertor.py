@@ -2,7 +2,6 @@ import json
 import multiprocessing as mp
 import os
 import pickle
-import sys
 idx = 0
 from multiprocessing.dummy import Pool
 from pathlib import Path
