@@ -197,7 +197,6 @@ class DVS_Genertor():
                                                                                     'steps': STEPS,
                                                                                     'dvs_params': "noisy"}
         os.system(cmd)
-        exit(-1)
 
     @staticmethod
     def _get_start_id_and_stop_id(data_num, core_num, idx=None):
