@@ -13,6 +13,7 @@ from os import path as osp
 
 import cv2
 import numpy as np
+from numpy.lib.npyio import save
 import refile
 from aiisp_tool.utils.oss_helper import OSSHelper
 from tqdm import tqdm
@@ -172,6 +173,8 @@ def worker(path, opt):
                                 [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
                 else:
                     cropped_img = cv2.imencode(".png", cropped_img)[1].tostring()
+                    print(save_path, flush=True)
+                    exit(-1)
                     helper.upload(cropped_img, save_path, "bin")
             else:
                 if "s3://" not in path:
