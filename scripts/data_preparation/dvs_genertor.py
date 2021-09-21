@@ -130,11 +130,11 @@ class DVS_Genertor():
         clean_events_path = DVS_Genertor._get_path(pair, "clean_events_path")
         noisy_events_path = DVS_Genertor._get_path(pair, "noisy_events_path")
         tmp_dir = "/tmp/{}".format(os.getpid())
-        cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
-                                                                                    'output_folder': tmp_dir,
-                                                                                    'output': clean_events_path,
-                                                                                    'dvs_params': "clean"}
-        os.system(cmd)
+        # cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
+        #                                                                             'output_folder': tmp_dir,
+        #                                                                             'output': clean_events_path,
+        #                                                                             'dvs_params': "clean"}
+        # os.system(cmd)
         cmd = "CUDA_VISIBLE_DEVICES={} ".format(os.getpid() % GPU_NUM) + COMMAND % {'input': avi_path,
                                                                                     'output_folder': tmp_dir,
                                                                                     'output': noisy_events_path,
