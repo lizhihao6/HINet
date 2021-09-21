@@ -42,7 +42,8 @@ COMMAND = "python3 {}/v2e.py " \
 # env setting
 GPU_NUM = 8
 # CPU_NUM = int(mp.cpu_count())
-CPU_NUM = 8
+CPU_NUM = 4
+TOTAL_RLANCH = 16
 
 
 class DVS_Genertor():
@@ -306,9 +307,9 @@ def gopro_generate_pairs():
 if __name__ == '__main__':
     stereo_pairs = stereo_generate_pairs()
     idx = int(sys.argv[1])
-    start_id = idx * len(stereo_pairs) // 8
-    stop_id = (idx + 1) * len(stereo_pairs) // 8
-    if len(stereo_pairs) - stop_id <= 8:
+    start_id = idx * len(stereo_pairs) // TOTAL_RLANCH
+    stop_id = (idx + 1) * len(stereo_pairs) // TOTAL_RLANCH
+    if len(stereo_pairs) - stop_id <= TOTAL_RLANCH:
         stop_id = len(stereo_pairs)
     dvs_genertor = DVS_Genertor(stereo_pairs[start_id:stop_id])
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
