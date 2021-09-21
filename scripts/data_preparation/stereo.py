@@ -58,14 +58,14 @@ def main():
     img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
     extract_subimages(opt, img_list)
 
-    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
-    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
-    opt['crop_size'] = 512
-    opt['step'] = 256
-    opt['thresh_size'] = 0
-    opt['suffix'] = "npy"
-    img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
-    extract_subimages(opt, img_list)
+    # opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
+    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
+    # opt['crop_size'] = 512
+    # opt['step'] = 256
+    # opt['thresh_size'] = 0
+    # opt['suffix'] = "npy"
+    # img_list = _get_img_list("events", opt['input_folder'], opt['suffix'])
+    # extract_subimages(opt, img_list)
 
 
 def extract_subimages(opt, img_list):
