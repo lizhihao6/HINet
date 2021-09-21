@@ -4,7 +4,8 @@ import os
 import pickle
 # import sys
 idx = 0
-from multiprocessing.dummy import Pool
+# from multiprocessing.dummy import Pool
+from multiprocessing import Pool
 from pathlib import Path
 
 import cv2
