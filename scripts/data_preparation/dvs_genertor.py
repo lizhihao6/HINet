@@ -4,8 +4,8 @@ import os
 import pickle
 # import sys
 idx = 0
-# from multiprocessing.dummy import Pool
-from multiprocessing import Pool
+from multiprocessing.dummy import Pool
+# from multiprocessing import Pool
 from pathlib import Path
 
 import cv2
@@ -44,7 +44,7 @@ COMMAND = "python3 {}/v2e.py " \
 # env setting
 GPU_NUM = 8
 # CPU_NUM = int(mp.cpu_count())
-CPU_NUM = 1
+CPU_NUM = 2
 
 
 class DVS_Genertor():
