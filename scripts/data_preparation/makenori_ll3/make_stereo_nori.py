@@ -13,16 +13,6 @@ from aiisp_tool.utils.oss_helper import OSSHelper
 import cv2
 
 
-@dataclass
-class Meta:
-    left_blur_img_nid: string
-    right_blur_img_nid: string
-    left_sharp_img_nid: string
-    right_sharp_img_nid: string
-    left_events_path: string
-    right_events_path: string
-
-
 def _oss_to_nid(nw, helper, oss_png_path):
     img = helper.download(oss_png_path, "bin")
     img = cv2.imdecode(
@@ -33,7 +23,7 @@ def _oss_to_nid(nw, helper, oss_png_path):
 
 def image2nori(input, gt, events, nw):
     helper = OSSHelper()
-    meta = Meta(
+    meta = dict(
         left_blur_img_nid=_oss_to_nid(nw, helper, input),
         right_blur_img_nid=_oss_to_nid(nw, helper,
                                        input.replace('left', 'right')),
@@ -42,7 +32,7 @@ def image2nori(input, gt, events, nw):
                                         gt.replace('left', 'right')),
         left_events_path=events,
         right_events_path=events.replace('left', 'right'))
-    return dict(meta)
+    return meta
 
 
 def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
@@ -57,7 +47,7 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
     nw = nori.remotewriteopen(nori_file)
     res = []
     metas = []
-    meta = Meta(
+    meta = dict(
         left_blur_img_nid="test",
         right_blur_img_nid="test",
         left_sharp_img_nid="test",
@@ -65,7 +55,7 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
         left_events_path="test",
         right_events_path="test"
     )
-    metas.append(dict(meta))
+    metas.append(meta)
 
     # pbar = tqdm(total=len(left_blur_paths), unit='image', desc='To nori')
     # pool = Pool(mp.cpu_count())
