@@ -33,8 +33,8 @@ def _get_img_list(keywords, input_folder, suffix):
 
 
 def main():
-    # gopro_pairs = stereo_generate_pairs()
-    # dvs_genertor = DVS_Genertor(gopro_pairs)
+    # stereo_pairs = stereo_generate_pairs()
+    # dvs_genertor = DVS_Genertor(stereo_pairs)
     # dvs_genertor.run(["sharps_to_blur", "sharps_to_avi", "avi_to_events", "events_to_voxel"])
 
     opt = {}
@@ -42,21 +42,21 @@ def main():
     opt['compression_level'] = 3
     opt['suffix'] = "png"
 
-    # opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
-    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
-    # opt['crop_size'] = 512
-    # opt['step'] = 256
-    # opt['thresh_size'] = 0
-    # img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
-    # extract_subimages(opt, img_list)
+    opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/input'
+    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/blur_crops'
+    opt['crop_size'] = 512
+    opt['step'] = 256
+    opt['thresh_size'] = 0
+    img_list = _get_img_list("input", opt['input_folder'], opt['suffix'])
+    extract_subimages(opt, img_list)
 
-    # opt['input_folder'] = '/data/stereo_blur_data/train/target'
-    # opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/sharp_crops'
-    # opt['crop_size'] = 512
-    # opt['step'] = 256
-    # opt['thresh_size'] = 0
-    # img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
-    # extract_subimages(opt, img_list)
+    opt['input_folder'] = '/data/stereo_blur_data/train/target'
+    opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/sharp_crops'
+    opt['crop_size'] = 512
+    opt['step'] = 256
+    opt['thresh_size'] = 0
+    img_list = _get_img_list("sharp", opt['input_folder'], opt['suffix'])
+    extract_subimages(opt, img_list)
 
     opt['input_folder'] = 's3://lzh-share/stereo_blur_data/train/events'
     opt['save_folder'] = 's3://lzh-share/stereo_blur_data/train/events_crops'
