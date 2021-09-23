@@ -1,4 +1,5 @@
 import math
+
 import torch
 from torch import nn as nn
 from torch.autograd import Function
@@ -101,7 +102,7 @@ class DeformConvFunction(Function):
             pad = padding[d]
             kernel = dilation[d] * (weight.size(d + 2) - 1) + 1
             stride_ = stride[d]
-            output_size += ((in_size + (2 * pad) - kernel) // stride_ + 1, )
+            output_size += ((in_size + (2 * pad) - kernel) // stride_ + 1,)
         if not all(map(lambda s: s > 0, output_size)):
             raise ValueError('convolution input is too small (output would be '
                              f'{"x".join(map(str, output_size))})')
@@ -235,7 +236,7 @@ class DeformConv(nn.Module):
         # To fix an assert error in deform_conv_cuda.cpp:128
         # input image is smaller than kernel
         input_pad = (
-            x.size(2) < self.kernel_size[0] or x.size(3) < self.kernel_size[1])
+                x.size(2) < self.kernel_size[0] or x.size(3) < self.kernel_size[1])
         if input_pad:
             pad_h = max(self.kernel_size[0] - x.size(2), 0)
             pad_w = max(self.kernel_size[1] - x.size(3), 0)
@@ -246,7 +247,7 @@ class DeformConv(nn.Module):
                           self.dilation, self.groups, self.deformable_groups)
         if input_pad:
             out = out[:, :, :out.size(2) - pad_h, :out.size(3) -
-                      pad_w].contiguous()
+                                                   pad_w].contiguous()
         return out
 
 

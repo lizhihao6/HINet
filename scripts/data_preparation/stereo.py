@@ -12,7 +12,6 @@ from os import path as osp
 
 import cv2
 import numpy as np
-from numpy.lib.npyio import save
 import refile
 from aiisp_tool.utils.oss_helper import OSSHelper
 from tqdm import tqdm
@@ -81,8 +80,8 @@ def extract_subimages(opt, img_list):
     input_folder = opt['input_folder']
     save_folder = opt['save_folder']
     # if not osp.exists(save_folder):
-        # os.makedirs(save_folder)
-        # print(f'mkdir {save_folder} ...')
+    # os.makedirs(save_folder)
+    # print(f'mkdir {save_folder} ...')
     # else:
     # print(f'Folder {save_folder} already exists. Exit.')
     # sys.exit(1)

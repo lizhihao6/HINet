@@ -15,7 +15,7 @@ from tqdm import tqdm
 # if write data to oss
 WRITE_TO_OSS = True
 OSS_PREFIX = "s3://lzh-share/stereo_blur_data/"
-LOCAL_TO_OSS = lambda local_path : OSS_PREFIX+local_path.split("stereo_blur_data/")[-1]
+LOCAL_TO_OSS = lambda local_path: OSS_PREFIX + local_path.split("stereo_blur_data/")[-1]
 
 # datasets path
 GOPRO_ORI_PATH = "./datasets/GOPRO_Large/"
@@ -64,7 +64,7 @@ class DVS_Genertor():
             assert ("avi_to_events" not in pipeline) and ("events_to_voxel" not in pipeline), "not compatibility"
             global COMMAND
             COMMAND = COMMAND.replace("--dvs_text=%(output)s",
-                            "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
+                                      "--dvs_numpy=%(output)s --dvs_numpy_diff=%(diff)f --dvs_numpy_steps=%(steps)d")
         for p in pipeline:
             self._multiprocessing(self.PIPELINE[p][0], self.PIPELINE[p][1])
 

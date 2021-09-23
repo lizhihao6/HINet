@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 import json
+import multiprocessing as mp
 import os
+from multiprocessing import Pool
 
+import cv2
 import nori2 as nori
 import numpy as np
-import multiprocessing as mp
-from multiprocessing import Pool
 import refile
-from tqdm import tqdm
-from balls.imgproc import imencode
 from aiisp_tool.utils.oss_helper import OSSHelper
-import cv2
+from balls.imgproc import imencode
+from tqdm import tqdm
 
 
 def _oss_to_nid(nw, helper, oss_png_path):

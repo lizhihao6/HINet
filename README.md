@@ -26,20 +26,20 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 ```
 ---
 
+
 <details>
   <summary>Image Deblur - GoPro dataset (Click to expand) </summary>
 
+* **generate datasets **(!!! only need when you want to regenerate events !!!)**
+  * ```python scripts/data_preparation/gopro.py```
+
 * prepare datasets
-  ```
+  ```bash
   oss sync s3://lzh-share/GOPRO_Large/ /data/GOPRO_Large/
   oss sync s3://lzh-share/GoPro/ /data/GoPro/
   ln -s /data/GoPro datasets/GoPro
   ln -s /data/GOPRO_Large datasets/GOPRO_Large 
   ```
-* generate events
-  ```
-  python scripts/data_preparation/gopro_generate_events.py
-  python scripts/data_preparation/gopro.py
 
 * eval
   * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to ./experiments/pretrained_models/HINet-GoPro.pth
@@ -47,7 +47,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   
 * train
 
-  * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
+  * ```python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
 
 </details>
 
@@ -55,11 +55,24 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 <details>
   <summary>Image Deblur - stereo dataset (Click to expand) </summary>
 
-* prepare datasets (!!! only need when you want to regenerate events !!!)
+* **generate datasets **(!!! only need when you want to regenerate events !!!)**
   ```
+  # x16 VFI
+  git clone https://github.com/lizhihao6/ABME.git
+  python3 stereo_blur_x16.py [0-8] (use rlanch) 
+  # generate events
   python3 scripts/data_preparation/dvs_genertor.py [0-8] (use rlanuch)
+  # crop
   cd scripts/data_preparation && python3 stereo.py (use rlanuch)
-  cd scripts/data_preparation/make_nori_ll3/ && python3 make_nori.py (use rlanuch)
+  # make nori
+  cd scripts/data_preparation/make_nori_ll3/make_stereo_nori.py (use rlanuch)
+  ```
+  
+* prepare datasets
+  ```bash
+  oss cp s3://lzh-share/stereo_blur_data/train.nori.json /data/stereo_blur_data/train.nori.json
+  oss sync s3://lzh-share/stereo_blur_data/test /data/stereo_blur_data/test
+  ln -s /data/stereo_blur_data datasets/stereo_blur_data
   ```
 
 * eval
