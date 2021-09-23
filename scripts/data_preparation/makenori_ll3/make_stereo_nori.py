@@ -47,28 +47,20 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
     nw = nori.remotewriteopen(nori_file)
     res = []
     metas = []
-    meta = dict(
-        left_blur_img_nid="test",
-        right_blur_img_nid="test",
-        left_sharp_img_nid="test",
-        right_sharp_img_nid="test",
-        left_events_path="test",
-        right_events_path="test"
-    )
-    metas.append(meta)
 
-    # pbar = tqdm(total=len(left_blur_paths), unit='image', desc='To nori')
-    # pool = Pool(mp.cpu_count())
-    # for i in range(len(left_blur_paths)):
-    #     _res = pool.apply_async(
-    #         image2nori,
-    #         args=(left_blur_paths[i], left_gt_paths[i], left_events_paths[i],
-    #               nw),
-    #         callback=lambda arg: pbar.update(1))
-    #     res.append(_res)
-    # for _res in res:
-    #     metas.append(_res.get())
-    # pbar.close()
+    pbar = tqdm(total=len(left_blur_paths), unit='image', desc='To nori')
+    pool = Pool(mp.cpu_count())
+    for i in range(len(left_blur_paths)):
+        _res = pool.apply_async(
+            image2nori,
+            args=(left_blur_paths[i], left_gt_paths[i], left_events_paths[i],
+                  nw),
+            callback=lambda arg: pbar.update(1))
+        res.append(_res)
+    for _res in res:
+        metas.append(_res.get())
+    pbar.close()
+    
     json_dir = os.path.dirname(json_file)
     if not os.path.exists(json_dir):
         os.makedirs(json_dir)
