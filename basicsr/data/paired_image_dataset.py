@@ -356,7 +356,9 @@ class PairedImageDataset_DVS(data.Dataset):
         events = np.load(events_path)
 
         # add noise for gopro
-        events = cv2.randn(events, (0,), (np.max(events),))
+        events_min = events.min()
+        events = (events+events_min).astype(np.uint8)
+        events = cv2.randn(events, (0,), (np.max(events),)).astype(np.float32)-events_min
 
         # for midvs
         # events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
