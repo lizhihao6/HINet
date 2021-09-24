@@ -346,11 +346,11 @@ class PairedImageDataset_DVS(data.Dataset):
         except:
             raise Exception("lq path {} not working".format(lq_path))
 
-        assert "target" in gt_path, "{} do not have target, could not auto found events path".format(gt_path)
-        events_path = gt_path[:-4].replace("target", "events") + ".npy"
-        if self.opt['phase'] == 'train':
-            events_path = events_path.replace("sharp_crops", "events_crops")
-        events = np.load(events_path)
+        # assert "target" in gt_path, "{} do not have target, could not auto found events path".format(gt_path)
+        # events_path = gt_path[:-4].replace("target", "events") + ".npy"
+        # if self.opt['phase'] == 'train':
+        #     events_path = events_path.replace("sharp_crops", "events_crops")
+        # events = np.load(events_path)
         events_path = "train/events_crops" if self.opt['phase'] == 'train' else "test/events"
         events_path = os.path.join("./datasets/GoPro", events_path, "{}.npy".format(gt_path))
         events = np.load(events_path)
