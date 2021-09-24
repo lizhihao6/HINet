@@ -6,6 +6,7 @@
 # ------------------------------------------------------------------------
 
 import cv2
+import os
 import numpy as np
 import torch
 from torch.utils import data as data
@@ -345,19 +346,22 @@ class PairedImageDataset_DVS(data.Dataset):
         except:
             raise Exception("lq path {} not working".format(lq_path))
 
-        # assert "target" in gt_path, "{} do not have target, could not auto found events path".format(gt_path)
-        # events_path = gt_path[:-4].replace("target", "events") + ".npy"
-        # if self.opt['phase'] == 'train':
-        #     events_path = events_path.replace("sharp_crops", "events_crops")
-        # events = np.load(events_path)
-        # events_path = "train/events_crops" if self.opt['phase'] == 'train' else "test/events"
-        # events_path = os.path.join("./datasets/GoPro", events_path, "{}.npy".format(gt_path))
-        # events = np.load(events_path)
+        assert "target" in gt_path, "{} do not have target, could not auto found events path".format(gt_path)
+        events_path = gt_path[:-4].replace("target", "events") + ".npy"
+        if self.opt['phase'] == 'train':
+            events_path = events_path.replace("sharp_crops", "events_crops")
+        events = np.load(events_path)
+        events_path = "train/events_crops" if self.opt['phase'] == 'train' else "test/events"
+        events_path = os.path.join("./datasets/GoPro", events_path, "{}.npy".format(gt_path))
+        events = np.load(events_path)
+
+        # add noise for gopro
+        events = cv2.randn(events, (0,), (np.max(events),))
 
         # for midvs
-        events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
-        events = np.load(events_path)
-        events = cv2.resize(events, (4000, 3000)).astype(np.float32)
+        # events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
+        # events = np.load(events_path)
+        # events = cv2.resize(events, (4000, 3000)).astype(np.float32)
 
         # augmentation for training
         if self.opt['phase'] == 'train':
