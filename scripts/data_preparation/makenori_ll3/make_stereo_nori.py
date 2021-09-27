@@ -44,9 +44,14 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
             refile.smart_path_join(inp_dir, 'left*.png'))
     ]
     left_gt_paths = [x.replace(inp_dir, gt_dir) for x in left_blur_paths]
-    left_events_paths = [
-        x.replace(inp_dir, events_dir).replace('_s', '.noisy_s').replace('png', 'npy') for x in left_blur_paths
-    ]
+    if '_s' in left_blur_paths[0]:
+        left_events_paths = [
+            x.replace(inp_dir, events_dir).replace('_s', '.noisy_s').replace('png', 'npy') for x in left_blur_paths
+        ]
+    else:
+        left_events_paths = [
+            x.replace(inp_dir, events_dir).replace('png', 'noisy.npy') for x in left_blur_paths
+        ]
     res = []
     metas = []
 
@@ -70,11 +75,11 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
 
 
 def convert_stereo():
-    # dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
-    #          's3://lzh-share/stereo_blur_data/train/sharp_crops',
-    #          's3://lzh-share/stereo_blur_data/train/events_crops',
-    #          's3://llcv-dataspace/stereo_blur_data/train.nori',
-    #          './datasets/stereo_blur_data/train.nori.json')
+    dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
+             's3://lzh-share/stereo_blur_data/train/sharp_crops',
+             's3://lzh-share/stereo_blur_data/train/events_crops',
+             's3://llcv-dataspace/stereo_blur_data/train.nori',
+             './datasets/stereo_blur_data/train.nori.json')
 
     dir2nori('s3://lzh-share/stereo_blur_data/test/input',
              '/data/stereo_blur_data/test/target',
