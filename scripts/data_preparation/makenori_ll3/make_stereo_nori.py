@@ -77,7 +77,7 @@ def convert_stereo():
     #          './datasets/stereo_blur_data/train.nori.json')
 
     dir2nori('s3://lzh-share/stereo_blur_data/test/input',
-             '/data/stereo_blur_data/test/target'
+             '/data/stereo_blur_data/test/target',
              's3://lzh-share/stereo_blur_data/test/events',
              's3://llcv-dataspace/stereo_blur_data/test.nori',
              './datasets/stereo_blur_data/test.nori.json')

@@ -37,7 +37,7 @@ datasets:
   val:
     name: stereo-dvs-test
     type: StereoImageDataset
-    json_file: ./datasets/stereo_blur_data/train.nori.json
+    json_file: ./datasets/stereo_blur_data/test.nori.json
     get_keys: [ left_blur_img_nid, left_sharp_img_nid, right_events_path ]
     return_keys: [ lq, gt, events ]
 
