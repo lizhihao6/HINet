@@ -45,7 +45,7 @@ datasets:
 network_g:
   type: EDVR
   num_feat: 128
-  num_restriction_block: 40
+  num_reconstruct_block: 40
 
 # path
 path:
