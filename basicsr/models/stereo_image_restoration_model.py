@@ -222,25 +222,25 @@ class StereoImageRestorationModel(BaseModel):
             preds = [preds]
         return preds
 
-    def optimize_parameters(self, current_iter):
-        if self.train_tsa_iter:
-            logger = get_root_logger()
-            if current_iter == 1:
-                logger.info(
-                    f'Only train TSA module for {self.train_tsa_iter} iters.')
-                for name, param in self.net_g.named_parameters():
-                    if 'fusion' not in name:
-                        param.requires_grad = False
-            elif current_iter == self.train_tsa_iter:
-                logger.warning('Train all the parameters.')
-                for param in self.net_g.parameters():
-                    param.requires_grad = True
-                if isinstance(self.net_g, torch.nn.parallel.DistributedDataParallel):
-                    logger.warning('Set net_g.find_unused_parameters = False.')
-                    self.net_g.find_unused_parameters = False
-        self._optimize_parameters(current_iter)
+    # def optimize_parameters(self, current_iter):
+    #     if self.train_tsa_iter:
+    #         logger = get_root_logger()
+    #         if current_iter == 1:
+    #             logger.info(
+    #                 f'Only train TSA module for {self.train_tsa_iter} iters.')
+    #             for name, param in self.net_g.named_parameters():
+    #                 if 'fusion' not in name:
+    #                     param.requires_grad = False
+    #         elif current_iter == self.train_tsa_iter:
+    #             logger.warning('Train all the parameters.')
+    #             for param in self.net_g.parameters():
+    #                 param.requires_grad = True
+    #             if isinstance(self.net_g, torch.nn.parallel.DistributedDataParallel):
+    #                 logger.warning('Set net_g.find_unused_parameters = False.')
+    #                 self.net_g.find_unused_parameters = False
+    #     self._optimize_parameters(current_iter)
 
-    def _optimize_parameters(self, current_iter):
+    def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
         # print(self.lq.shape, self.events.shape)
         # print(self.events.min(), self.events.max(), self.events.mean())
