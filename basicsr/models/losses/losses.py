@@ -29,11 +29,6 @@ def charbonnier_loss(pred, target, eps=1e-12):
     return torch.sqrt((pred - target) ** 2 + eps)
 
 
-# @weighted_loss
-# def charbonnier_loss(pred, target, eps=1e-12):
-#     return torch.sqrt((pred - target)**2 + eps)
-
-
 class L1Loss(nn.Module):
     """L1 (mean absolute error, MAE) loss.
 

@@ -356,6 +356,7 @@ class EDVR(nn.Module):
         # self.upconv2 = nn.Conv2d(num_feat, 64 * 4, 3, 1, 1)
         # self.pixel_shuffle = nn.PixelShuffle(2)
         # self.conv_hr = nn.Conv2d(64, 64, 3, 1, 1)
+        self.conv_hr = nn.Conv2d(num_feat, 64, 3, 1, 1)
         self.conv_last = nn.Conv2d(64, num_out_ch, 3, 1, 1)
 
         # activation function
