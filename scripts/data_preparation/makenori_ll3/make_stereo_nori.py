@@ -43,7 +43,7 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
     ]
     left_gt_paths = [x.replace(inp_dir, gt_dir) for x in left_blur_paths]
     left_events_paths = [
-        x.replace(inp_dir, events_dir) for x in left_blur_paths
+        x.replace(inp_dir, events_dir).replace('_s', '.noisy_s').replace('png', 'npy') for x in left_blur_paths
     ]
     res = []
     metas = []

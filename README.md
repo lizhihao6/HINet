@@ -24,6 +24,7 @@ oss cp s3://lzh-share/models/SuperSloMo39.ckpt ./.v2e/.pretrain/SuperSloMo39.ckp
 # use rlanuch multigpus
 echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-failure -P 1 --preemptible=no '" >> ~/.zshrc
 ```
+
 ---
 
 
@@ -31,7 +32,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   <summary>Image Deblur - GoPro dataset (Click to expand) </summary>
 
 * **generate datasets **(!!! only need when you want to regenerate events !!!)**
-  * ```python scripts/data_preparation/gopro.py```
+    * ```python scripts/data_preparation/gopro.py```
 
 * prepare datasets
   ``` bash
@@ -42,12 +43,13 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   ```
 
 * eval
-  * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to ./experiments/pretrained_models/HINet-GoPro.pth
-  * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
-  
+    * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to
+      ./experiments/pretrained_models/HINet-GoPro.pth
+    * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
+
 * train
 
-  * ```python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
+    * ```python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
 
 </details>
 
@@ -67,7 +69,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   # make nori
   cd scripts/data_preparation/make_nori_ll3/make_stereo_nori.py (use rlanuch)
   ```
-  
+
 * prepare datasets
   ``` bash
   oss cp s3://lzh-share/stereo_blur_data/train.nori.json /data/stereo_blur_data/train.nori.json
@@ -76,11 +78,12 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   ```
 
 * eval
-  * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to ./experiments/pretrained_models/HINet-GoPro.pth
-  * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
-  
+    * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to
+      ./experiments/pretrained_models/HINet-GoPro.pth
+    * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
+
 * train
 
-  * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
+    * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
 
 </details>

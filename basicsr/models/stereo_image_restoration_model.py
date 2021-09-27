@@ -20,11 +20,11 @@ loss_module = importlib.import_module('basicsr.models.losses')
 metric_module = importlib.import_module('basicsr.metrics')
 
 
-class DVSImageRestorationModel(BaseModel):
+class StereoImageRestorationModel(BaseModel):
     """Base Deblur model for single image deblur."""
 
     def __init__(self, opt):
-        super(DVSImageRestorationModel, self).__init__(opt)
+        super(StereoImageRestorationModel, self).__init__(opt)
 
         # define network
         self.net_g = define_network(deepcopy(opt['network_g']))
@@ -205,8 +205,11 @@ class DVSImageRestorationModel(BaseModel):
         self.events = self.origin_events
 
     def _get_input(self, lq, events):
-        # return torch.cat([torch.pow(lq, 2.2), events/10.], dim=1)
-        return torch.cat([lq, events / 10.], dim=1)
+        return {
+            'x': lq,
+            'before_events': events[:, :events.shape[1] // 2],
+            'after_evetns': events[:, events.shape[1] // 2:]
+        }
 
     def _get_preds(self, preds):
         # if not isinstance(preds, list):
@@ -221,7 +224,7 @@ class DVSImageRestorationModel(BaseModel):
         self.optimizer_g.zero_grad()
         # print(self.lq.shape, self.events.shape)
         # print(self.events.min(), self.events.max(), self.events.mean())
-        preds = self.net_g(self._get_input(self.lq, self.events))
+        preds = self.net_g(**self._get_input(self.lq, self.events))
         preds = self._get_preds(preds)
 
         self.output = preds[-1]
@@ -272,7 +275,7 @@ class DVSImageRestorationModel(BaseModel):
                 if j >= n:
                     j = n
                 # print(self.lq.shape, self.events.shape)
-                pred = self.net_g(self._get_input(self.lq[i:j, :, :, :], self.events[i:j, :, :, :]))
+                pred = self.net_g(**self._get_input(self.lq[i:j, :, :, :], self.events[i:j, :, :, :]))
                 pred = self._get_preds(pred)
                 if isinstance(pred, list):
                     pred = pred[-1]
@@ -427,6 +430,7 @@ class DVSImageRestorationModel(BaseModel):
         if hasattr(self, 'gt'):
             out_dict['gt'] = self.gt.detach().cpu()
         events = self.events.detach().cpu()
+        events = torch.sum(events, dim=1, keepdim=True)
         events = (events - events.min()) / (events.max() - events.min())
         out_dict['events'] = events
         return out_dict

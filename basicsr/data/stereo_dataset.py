@@ -17,7 +17,7 @@ from basicsr.data.transforms import augment
 from basicsr.utils import img2tensor, dvs_padding, dvs_paired_random_crop
 
 
-class PairedImageDataset(data.Dataset):
+class StereoImageDataset(data.Dataset):
     """Paired image dataset for image restoration.
 
     Read LQ (Low Quality, e.g. LR (Low Resolution), blurry, noisy, etc) and
@@ -49,31 +49,32 @@ class PairedImageDataset(data.Dataset):
     """
 
     def __init__(self, opt):
-        super(PairedImageDataset, self).__init__()
+        super(StereoImageDataset, self).__init__()
         self.opt = opt
         # file client (io backend)
         self.file_client = None
-        self.io_backend_opt = opt['io_backend']
         self.mean = opt['mean'] if 'mean' in opt else None
         self.std = opt['std'] if 'std' in opt else None
 
-        self.json = json.load(opt['json_file'])
+        with open(opt['json_file'], 'r+') as f:
+            self.json = json.load(f)
         self.get_keys = opt['get_keys']
         self.return_keys = opt['return_keys']
         assert len(self.get_keys) == len(self.return_keys), 'return keys length should be as same as get keys'
         self.helper, self.nf = None, None
         for k in self.json[0]:
             if 's3' in self.json[0](k) and self.helper is None:
-                from aiisp_tool.utils import OSSHelper
+                from aiisp_tool.utils.oss_helper import OSSHelper
                 self.helper = OSSHelper()
             elif ',' in self.json[0](k) and self.nf is None:
                 import nori2 as nori
-                global imdecode
+                from balls.imgproc import imdecode
+                self.imdecode = imdecode
                 self.nf = nori.Fetcher()
 
     def _load_img(self, im_path):
         if ',' in im_path:
-            return imdecode('np4', self.nf.get(im_path)).astype(np.float32) / 255.
+            return self.imdecode('np4', self.nf.get(im_path)).astype(np.float32) / 255.
         else:
             return cv2.imread(im_path).astype(np.float32) / 255.
 
@@ -89,7 +90,7 @@ class PairedImageDataset(data.Dataset):
         if self.opt['random_swap_left_right']:
             for i in range(len(self.get_keys)):
                 self.get_keys[i] = self.get_keys[i].replace('left', 'right') if 'left' in self.get_keys[i] else \
-                self.get_keys[i].replace('right', 'left')
+                    self.get_keys[i].replace('right', 'left')
         imgs = [self._load_img(meta[g]) if 'image' in r else self._load_events(meta[g]) for g, r in
                 zip(self.return_keys, self.get_keys)]
 
@@ -120,7 +121,7 @@ class PairedImageDataset(data.Dataset):
             # add noise
             inputs = [imgs[i] for i, v in enumerate(self.return_keys) if 'image' in v and 'gt' not in v]
             inputs = [im + np.sqrt(self.opt['noise_std']) * (torch.randn_like(im) - 0.5) for im in inputs][::-1]
-            for i, v in enumerate(self.return_keys)
+            for i, v in enumerate(self.return_keys):
                 if 'image' in v and 'gt' not in v:
                     imgs[i] = inputs.pop()
 

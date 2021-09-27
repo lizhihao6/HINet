@@ -40,8 +40,8 @@ path:
 # validation settings
 val:
   save_img: false
- # grids: true
- # crop_size: 256
+  # grids: true
+  # crop_size: 256
   rgb2bgr: true
   use_image: false
   metrics:
@@ -49,7 +49,7 @@ val:
       type: calculate_psnr
       crop_border: 0
       test_y_channel: false
-    
+
 
 # dist training settings
 dist_params:
