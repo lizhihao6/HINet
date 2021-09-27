@@ -103,7 +103,7 @@ logger:
     resume_id: ~
 
 # dist training settings
-find_unused_parameters: true
+find_unused_parameters: false
 dist_params:
   backend: nccl
   port: 29500
