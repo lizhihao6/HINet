@@ -14,9 +14,11 @@ from tqdm import tqdm
 
 
 def _oss_to_nid(nw, helper, oss_png_path):
-    img = helper.download(oss_png_path, "bin")
-    img = cv2.imdecode(
-        np.fromstring(img, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    if 's3' in oss_png_path:
+        img = helper.download(oss_png_path, "bin")
+        img = cv2.imdecode(np.fromstring(img, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    else:
+        img = cv2.imread(oss_png_path)
     _, np4 = imencode('.np4', img)
     return nw.put(np4)
 
@@ -68,12 +70,17 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
 
 
 def convert_stereo():
-    dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
-             's3://lzh-share/stereo_blur_data/train/sharp_crops',
-             's3://lzh-share/stereo_blur_data/train/events_crops',
-             's3://llcv-dataspace/stereo_blur_data/train.nori',
-             './datasets/stereo_blur_data/train.nori.json')
+    # dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
+    #          's3://lzh-share/stereo_blur_data/train/sharp_crops',
+    #          's3://lzh-share/stereo_blur_data/train/events_crops',
+    #          's3://llcv-dataspace/stereo_blur_data/train.nori',
+    #          './datasets/stereo_blur_data/train.nori.json')
 
+    dir2nori('s3://lzh-share/stereo_blur_data/test/input',
+             '/data/stereo_blur_data/test/target'
+             's3://lzh-share/stereo_blur_data/test/events',
+             's3://llcv-dataspace/stereo_blur_data/test.nori',
+             './datasets/stereo_blur_data/test.nori.json')
 
 if __name__ == "__main__":
     convert_stereo()
