@@ -29,8 +29,8 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 1
-    batch_size_per_gpu: 1
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 4
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -44,8 +44,8 @@ datasets:
 # network structures
 network_g:
   type: EDVR
-  num_feat: 128
-  num_reconstruct_block: 40
+  num_feat: 64
+  num_reconstruct_block: 10
 
 # path
 path:
