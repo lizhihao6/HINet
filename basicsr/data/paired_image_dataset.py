@@ -5,8 +5,8 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 
-import cv2
 import os
+
 import numpy as np
 import torch
 from torch.utils import data as data
@@ -15,8 +15,8 @@ from torchvision.transforms.functional import normalize
 from basicsr.data.data_util import (paired_paths_from_folder,
                                     paired_paths_from_lmdb,
                                     paired_paths_from_meta_info_file)
-from basicsr.data.transforms import augment, paired_random_crop, random_augmentation, dvs_paired_random_crop
-from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, dvs_padding
+from basicsr.data.transforms import augment, paired_random_crop, random_augmentation
+from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, dvs_padding, dvs_paired_random_crop
 
 
 class PairedImageDataset(data.Dataset):
@@ -356,9 +356,7 @@ class PairedImageDataset_DVS(data.Dataset):
         events = np.load(events_path)
 
         # add noise for gopro
-        events_min = events.min()
-        events = (events+events_min).astype(np.uint8)
-        events = cv2.randn(events, (0,), (np.max(events),)).astype(np.float32)-events_min
+        # events += cv2.randn(events.copy(), (0), (max(events.max()/10, events.min()/10)))
 
         # for midvs
         # events_path = "/data/MiDVS/events/{}.npy".format(gt_path)
@@ -372,10 +370,10 @@ class PairedImageDataset_DVS(data.Dataset):
 
             gt_size = self.opt['gt_size']
             # padding
-            img_gt, img_lq, img_events = dvs_padding(img_gt, img_lq, img_events, gt_size)
+            img_gt, img_lq, img_events = dvs_padding([img_gt, img_lq, img_events], gt_size)
 
             # random crop
-            img_gt, img_lq, img_events = dvs_paired_random_crop(img_gt, img_lq, img_events, gt_size, scale, gt_path)
+            img_gt, img_lq, img_events = dvs_paired_random_crop([img_gt, img_lq, img_events], gt_size, scale, gt_path)
 
             # flip, rotation
             img_gt, img_lq, img_events = augment([img_gt, img_lq, img_events], self.opt['use_flip'],
