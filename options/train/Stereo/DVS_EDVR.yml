@@ -83,9 +83,9 @@ train:
 val:
   val_freq: !!float 5e4
   save_img: false
-  grids: true
-  crop_size: 256
-  max_minibatch: 2
+  grids: false
+  crop_size: 512
+  max_minibatch: 8
 
   metrics:
     psnr: # metric name, can be arbitrary
