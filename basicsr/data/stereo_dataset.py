@@ -86,7 +86,7 @@ class StereoImageDataset(data.Dataset):
     def __getitem__(self, index):
         scale = self.opt['scale']
         meta = self.json[index]
-        if self.opt['random_swap_left_right']:
+        if self.opt['phase'] == 'train' and self.opt['random_swap_left_right']:
             for i in range(len(self.get_keys)):
                 self.get_keys[i] = self.get_keys[i].replace('left', 'right') if 'left' in self.get_keys[i] else \
                     self.get_keys[i].replace('right', 'left')
@@ -132,7 +132,10 @@ class StereoImageDataset(data.Dataset):
         if self.mean is not None or self.std is not None:
             imgs = [normalize(im, self.mean, self.std, inplace=True) for im in imgs]
 
-        return {v: imgs[i] for i, v in enumerate(self.return_keys)}
+        return_dict = {v: imgs[i] for i, v in enumerate(self.return_keys)}
+        for g, r in zip(self.get_keys, self.return_keys):
+            return_dict[r+'_path'] = meta[g]
+        return return_dict
 
     def __len__(self):
         return len(self.json)

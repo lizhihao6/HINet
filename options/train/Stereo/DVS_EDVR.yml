@@ -8,7 +8,7 @@
 name: Stereo-DVS-EDVR
 model_type: StereoImageRestorationModel
 scale: 1
-num_gpu: 4
+num_gpu: 8
 manual_seed: 10
 
 datasets:
@@ -29,8 +29,8 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 16
-    batch_size_per_gpu: 16
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 4
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -69,6 +69,7 @@ train:
   total_iter: 600000
   warmup_iter: -1  # no warm up
   tsa_iter: 50000
+  dcn_lr_mul: 1
 
   # losses
   pixel_opt:
@@ -80,7 +81,7 @@ train:
 val:
   val_freq: !!float 5e4
   save_img: false
-  grids: true
+  grids: false
   crop_size: 256
   max_minibatch: 8
 
