@@ -15,6 +15,7 @@ from torchvision.transforms.functional import normalize
 
 from basicsr.data.transforms import augment
 from basicsr.utils import img2tensor, dvs_padding, dvs_paired_random_crop
+from aiisp_tool.utils.oss_helper import OSSHelper
 
 
 class StereoImageDataset(data.Dataset):
@@ -63,10 +64,7 @@ class StereoImageDataset(data.Dataset):
         assert len(self.get_keys) == len(self.return_keys), 'return keys length should be as same as get keys'
         self.helper, self.nf = None, None
         for k in self.json[0]:
-            if 's3' in self.json[0](k) and self.helper is None:
-                from aiisp_tool.utils.oss_helper import OSSHelper
-                self.helper = OSSHelper()
-            elif ',' in self.json[0](k) and self.nf is None:
+            if ',' in self.json[0][k] and self.nf is None:
                 import nori2 as nori
                 from balls.imgproc import imdecode
                 self.imdecode = imdecode
@@ -74,13 +72,14 @@ class StereoImageDataset(data.Dataset):
 
     def _load_img(self, im_path):
         if ',' in im_path:
-            return self.imdecode('np4', self.nf.get(im_path)).astype(np.float32) / 255.
+            return self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
         else:
             return cv2.imread(im_path).astype(np.float32) / 255.
 
     def _load_events(self, events_path):
         if 's3' in events_path:
-            return self.helper.download(events_path, 'numpy').astype(np.float32) / 3.
+            helper = OSSHelper()
+            return helper.download(events_path, 'numpy').astype(np.float32) / 3.
         else:
             return np.load(events_path).astype(np.float32) / 3.
 
@@ -91,8 +90,8 @@ class StereoImageDataset(data.Dataset):
             for i in range(len(self.get_keys)):
                 self.get_keys[i] = self.get_keys[i].replace('left', 'right') if 'left' in self.get_keys[i] else \
                     self.get_keys[i].replace('right', 'left')
-        imgs = [self._load_img(meta[g]) if 'image' in r else self._load_events(meta[g]) for g, r in
-                zip(self.return_keys, self.get_keys)]
+        imgs = [self._load_img(meta[g]) if 'events' not in r else self._load_events(meta[g]) for g, r in
+                zip(self.get_keys, self.return_keys)]
 
         # Load images and events. Dimension order: HWC; channel order: BGR;
         # image range: [0, 1], float32.

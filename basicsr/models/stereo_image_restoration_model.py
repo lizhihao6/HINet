@@ -39,9 +39,9 @@ class StereoImageRestorationModel(BaseModel):
                               param_key=self.opt['path'].get('param_key', 'params'))
 
         if self.is_train:
+            self.dcn_lr_mul = opt['train'].get('dcn_lr_mul')
             self.init_training_settings()
             self.train_tsa_iter = opt['train'].get('tsa_iter')
-            self.dcn_lr_mul = opt['train'].get('dcn_lr_mul')
 
     def init_training_settings(self):
         self.net_g.train()
@@ -210,7 +210,7 @@ class StereoImageRestorationModel(BaseModel):
         return {
             'x': lq,
             'before_events': events[:, :events.shape[1] // 2],
-            'after_evetns': events[:, events.shape[1] // 2:]
+            'after_events': events[:, events.shape[1] // 2:]
         }
 
     def _get_preds(self, preds):

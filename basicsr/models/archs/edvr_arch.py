@@ -420,9 +420,9 @@ class EDVR(nn.Module):
         feat = self.fusion(aligned_feat)
 
         out = self.reconstruction(feat)
-        out = self.lrelu(self.pixel_shuffle(self.upconv1(out)))
-        out = self.lrelu(self.pixel_shuffle(self.upconv2(out)))
-        out = self.lrelu(self.conv_hr(out))
+        # out = self.lrelu(self.pixel_shuffle(self.upconv1(out)))
+        # out = self.lrelu(self.pixel_shuffle(self.upconv2(out)))
+        # out = self.lrelu(self.conv_hr(out))
         out = self.conv_last(out)
         # if self.hr_in:
         #   base = x_center

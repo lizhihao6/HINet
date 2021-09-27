@@ -42,7 +42,7 @@ def dvs_paired_random_crop(imgs, gt_patch_size, scale, gt_path):
     for i in range(len(imgs)):
         if not isinstance(imgs[i], list):
             imgs[i] = [imgs[i]]
-            assert imgs[i][0].shape == imgs[0][0].shape, 'only support same size now'
+            assert imgs[i][0].shape[:2] == imgs[0][0].shape[:2], 'only support same size now'
 
     h_lq, w_lq, _ = imgs[0][0].shape
     h_gt, w_gt = h_lq, w_lq

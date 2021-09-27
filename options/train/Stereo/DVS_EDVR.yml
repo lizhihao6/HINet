@@ -25,7 +25,7 @@ datasets:
 
     random_swap_left_right: true
 
-    noise_std: 0.01
+    noise_std: !!float 0.01
 
     # data loader
     use_shuffle: true
@@ -69,7 +69,6 @@ train:
   total_iter: 600000
   warmup_iter: -1  # no warm up
   tsa_iter: 50000
-  dcn_lr_mul: 1
 
   # losses
   pixel_opt:
@@ -101,6 +100,7 @@ logger:
     resume_id: ~
 
 # dist training settings
+find_unused_parameters: true
 dist_params:
   backend: nccl
   port: 29500
