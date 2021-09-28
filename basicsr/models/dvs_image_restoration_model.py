@@ -206,7 +206,8 @@ class DVSImageRestorationModel(BaseModel):
 
     def _get_input(self, lq, events):
         # return torch.cat([torch.pow(lq, 2.2), events/10.], dim=1)
-        return torch.cat([lq, events / 10.], dim=1)
+        # return torch.cat([lq, events / 10.], dim=1)
+        return torch.cat([lq, events], dim=1)
 
     def _get_preds(self, preds):
         # if not isinstance(preds, list):
@@ -428,7 +429,7 @@ class DVSImageRestorationModel(BaseModel):
             out_dict['gt'] = self.gt.detach().cpu()
         events = self.events.detach().cpu()
         events = (events - events.min()) / (events.max() - events.min())
-        out_dict['events'] = events
+        out_dict['events'] = torch.sum(events, dim=1, keepdim=True)
         return out_dict
 
     def save(self, epoch, current_iter):
