@@ -32,7 +32,7 @@ def _events_oss_to_nid(nw, helper, oss_events_path):
     nid = ""
     for i in range(0, events.shape[2] // 4):
         _, np4 = imencode('.np4', events[i * 4:i * 4 + 4])
-        nid += (np4 + '|')
+        nid += (nw.put(np4) + '|')
     return nid[:-1]
 
 
