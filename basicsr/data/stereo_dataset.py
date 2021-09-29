@@ -10,12 +10,12 @@ import json
 import cv2
 import numpy as np
 import torch
+from aiisp_tool.utils.oss_helper import OSSHelper
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 
 from basicsr.data.transforms import augment
 from basicsr.utils import img2tensor, dvs_padding, dvs_paired_random_crop
-from aiisp_tool.utils.oss_helper import OSSHelper
 
 
 class StereoImageDataset(data.Dataset):

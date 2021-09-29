@@ -13,7 +13,7 @@ from balls.imgproc import imencode
 from tqdm import tqdm
 
 
-def _oss_to_nid(nw, helper, oss_png_path):
+def _im_oss_to_nid(nw, helper, oss_png_path):
     if 's3' in oss_png_path:
         img = helper.download(oss_png_path, "bin")
         img = cv2.imdecode(np.fromstring(img, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
@@ -23,18 +23,35 @@ def _oss_to_nid(nw, helper, oss_png_path):
     return nw.put(np4)
 
 
-def image2nori(input, gt, events, nori_file):
+def _events_oss_to_nid(nw, helper, oss_events_path):
+    if 's3' in oss_events_path:
+        events = helper.download(oss_events_path, "numpy")
+    else:
+        events = np.load(oss_events_path)
+    assert events.shape[2] == 16
+    nid = ""
+    for i in range(0, events.shape[2] // 4):
+        _, np4 = imencode('.np4', events[i * 4:i * 4 + 4])
+        nid += (np4 + '|')
+    return nid[:-1]
+
+
+def image2nori(input, gt, clean_events, noisy_events, nori_file):
     nw = nori.remotewriteopen(nori_file)
     helper = OSSHelper()
     meta = dict(
-        left_blur_img_nid=_oss_to_nid(nw, helper, input),
-        right_blur_img_nid=_oss_to_nid(nw, helper,
-                                       input.replace('left', 'right')),
-        left_sharp_img_nid=_oss_to_nid(nw, helper, gt),
-        right_sharp_img_nid=_oss_to_nid(nw, helper,
-                                        gt.replace('left', 'right')),
-        left_events_path=events,
-        right_events_path=events.replace('left', 'right'))
+        left_base_name=os.path.basename(input),
+        right_base_name=os.path.basename(input.replace('left', 'right')),
+        left_blur_img_nid=_im_oss_to_nid(nw, helper, input),
+        right_blur_img_nid=_im_oss_to_nid(nw, helper,
+                                          input.replace('left', 'right')),
+        left_sharp_img_nid=_im_oss_to_nid(nw, helper, gt),
+        right_sharp_img_nid=_im_oss_to_nid(nw, helper,
+                                           gt.replace('left', 'right')),
+        left_clean_events_nid=_events_oss_to_nid(nw, helper, clean_events),
+        right_clean_events_nid=_events_oss_to_nid(nw, helper, clean_events.replace('left', 'right')),
+        left_noisy_events_nid=_events_oss_to_nid(nw, helper, noisy_events),
+        right_noisy_events_nid=_events_oss_to_nid(nw, helper, noisy_events.replace('left', 'right')))
     return meta
 
 
@@ -60,7 +77,9 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
     for i in range(len(left_blur_paths)):
         _res = pool.apply_async(
             image2nori,
-            args=(left_blur_paths[i], left_gt_paths[i], left_events_paths[i], nori_file),
+            args=(
+            left_blur_paths[i], left_gt_paths[i], left_events_paths[i].replace('noisy', 'clean'), left_events_paths[i],
+            nori_file),
             callback=lambda arg: pbar.update(1))
         res.append(_res)
     for _res in res:
@@ -78,14 +97,14 @@ def convert_stereo():
     dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
              's3://lzh-share/stereo_blur_data/train/sharp_crops',
              's3://lzh-share/stereo_blur_data/train/events_crops',
-             's3://llcv-dataspace/stereo_blur_data/train.nori',
-             './datasets/stereo_blur_data/train.nori.json')
+             's3://llcv-dataspace/stereo_blur_data/train_v2.nori',
+             './datasets/stereo_blur_data/train_v2.nori.json')
 
     dir2nori('s3://lzh-share/stereo_blur_data/test/input',
              '/data/stereo_blur_data/test/target',
              's3://lzh-share/stereo_blur_data/test/events',
-             's3://llcv-dataspace/stereo_blur_data/test.nori',
-             './datasets/stereo_blur_data/test.nori.json')
+             's3://llcv-dataspace/stereo_blur_data/test_v2.nori',
+             './datasets/stereo_blur_data/test_2.nori.json')
 
 
 if __name__ == "__main__":
