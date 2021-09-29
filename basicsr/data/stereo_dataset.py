@@ -81,7 +81,8 @@ class StereoImageDataset(data.Dataset):
             helper = OSSHelper()
             return helper.download(events_path, 'numpy').astype(np.float32) / 3.
         elif ',' in events_path:
-            return np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(np.float32)/255. - 127./255.
+            return np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(
+                np.float32) / 255. - 127. / 255.
         else:
             return np.load(events_path).astype(np.float32) / 3.
 
@@ -136,7 +137,7 @@ class StereoImageDataset(data.Dataset):
 
         return_dict = {v: imgs[i] for i, v in enumerate(self.return_keys)}
         for g, r in zip(self.get_keys, self.return_keys):
-            return_dict[r+'_path'] = meta[g]
+            return_dict[r + '_path'] = meta[g]
         return return_dict
 
     def __len__(self):
