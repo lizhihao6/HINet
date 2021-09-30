@@ -29,6 +29,7 @@ def _events_oss_to_nid(nw, helper, oss_events_path):
     else:
         events = np.load(oss_events_path)
     assert events.shape[2] == 16
+    events = (events.astype(np.float32)+127.).astype(np.uint8)
     nid = ""
     for i in range(0, events.shape[2] // 4):
         _, np4 = imencode('.np4', events[i * 4:i * 4 + 4])
@@ -97,14 +98,14 @@ def convert_stereo():
     dir2nori('s3://lzh-share/stereo_blur_data/train/blur_crops',
              's3://lzh-share/stereo_blur_data/train/sharp_crops',
              's3://lzh-share/stereo_blur_data/train/events_crops',
-             's3://llcv-dataspace/stereo_blur_data/train_v2.nori',
-             './datasets/stereo_blur_data/train_v2.nori.json')
+             's3://llcv-dataspace/stereo_blur_data/train_v3.nori',
+             './datasets/stereo_blur_data/train_v3.nori.json')
 
     dir2nori('s3://lzh-share/stereo_blur_data/test/input',
              '/data/stereo_blur_data/test/target',
              's3://lzh-share/stereo_blur_data/test/events',
-             's3://llcv-dataspace/stereo_blur_data/test_v2.nori',
-             './datasets/stereo_blur_data/test_2.nori.json')
+             's3://llcv-dataspace/stereo_blur_data/test_v3.nori',
+             './datasets/stereo_blur_data/test_3.nori.json')
 
 
 if __name__ == "__main__":

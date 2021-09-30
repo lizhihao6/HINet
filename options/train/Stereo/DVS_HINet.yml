@@ -5,7 +5,7 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 # general settings
-name: GoPro-DVS-HINet
+name: Stereo-DVS-HINet
 model_type: DVSImageRestorationModel
 scale: 1
 num_gpu: 8
@@ -43,7 +43,7 @@ datasets:
 # network structures
 network_g:
   type: HINet
-  in_chn: 4
+  in_chn: 19
   wf: 64
   hin_position_left: 3
   hin_position_right: 4
