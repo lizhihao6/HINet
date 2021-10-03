@@ -79,12 +79,12 @@ class StereoImageDataset(data.Dataset):
     def _load_events(self, events_path):
         if 's3' in events_path:
             helper = OSSHelper()
-            return helper.download(events_path, 'numpy').astype(np.float32) / 3.
+            return helper.download(events_path, 'numpy').astype(np.float32)
         elif ',' in events_path:
             return np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(
                 np.float32) / 255. - 127. / 255.
         else:
-            return np.load(events_path).astype(np.float32) / 3.
+            return np.load(events_path).astype(np.float32)
 
     def __getitem__(self, index):
         scale = self.opt['scale']

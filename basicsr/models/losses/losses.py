@@ -150,3 +150,30 @@ class CharbonnierLoss(nn.Module):
         """
         return self.loss_weight * charbonnier_loss(
             pred, target, weight, eps=self.eps, reduction=self.reduction)
+
+
+class BCELoss(nn.Module):
+    """L1 (mean absolute error, MAE) loss.
+
+    Args:
+        loss_weight (float): Loss weight for L1 loss. Default: 1.0.
+        reduction (str): Specifies the reduction to apply to the output.
+            Supported choices are 'none' | 'mean' | 'sum'. Default: 'mean'.
+    """
+
+    def __init__(self, loss_weight=1.0, reduction='mean'):
+        super(BCELoss, self).__init__()
+        if reduction not in ['none', 'mean', 'sum']:
+            raise ValueError(f'Unsupported reduction mode: {reduction}. '
+                             f'Supported ones are: {_reduction_modes}')
+
+        self.loss_weight = loss_weight
+        self.bce = nn.BCELoss(reduction=reduction)
+
+    def forward(self, pred, target):
+        """
+        Args:
+            pred (Tensor): of shape (N, C, H, W). Predicted tensor.
+            target (Tensor): of shape (N, C, H, W). Ground truth tensor.
+        """
+        return self.loss_weight * self.bce(pred, target)

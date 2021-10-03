@@ -29,7 +29,7 @@ def _events_oss_to_nid(nw, helper, oss_events_path):
     else:
         events = np.load(oss_events_path)
     assert events.shape[2] == 16
-    events = (events.astype(np.float32)+127.).astype(np.uint8)
+    events = (events.astype(np.float32) + 127.).astype(np.uint8)
     nid = ""
     for i in range(0, events.shape[2] // 4):
         _, np4 = imencode('.np4', events[i * 4:i * 4 + 4])
@@ -79,8 +79,9 @@ def dir2nori(inp_dir, gt_dir, events_dir, nori_file, json_file):
         _res = pool.apply_async(
             image2nori,
             args=(
-            left_blur_paths[i], left_gt_paths[i], left_events_paths[i].replace('noisy', 'clean'), left_events_paths[i],
-            nori_file),
+                left_blur_paths[i], left_gt_paths[i], left_events_paths[i].replace('noisy', 'clean'),
+                left_events_paths[i],
+                nori_file),
             callback=lambda arg: pbar.update(1))
         res.append(_res)
     for _res in res:
