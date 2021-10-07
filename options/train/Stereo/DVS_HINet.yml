@@ -15,7 +15,7 @@ datasets:
   train:
     name: stereo-dvs-train
     type: StereoImageDataset
-    json_file: ./datasets/stereo_blur_data/train_v3.nori.json
+    json_file: ./datasets/stereo_blur_data/train_v4.nori.json
     get_keys: [ left_blur_img_nid, left_sharp_img_nid, right_noisy_events_nid]
     return_keys: [ lq, gt, events]
     random_swap_left_right: true
@@ -36,7 +36,7 @@ datasets:
   val:
     name: stereo-dvs-test
     type: StereoImageDataset
-    json_file: ./datasets/stereo_blur_data/test_v3.nori.json
+    json_file: ./datasets/stereo_blur_data/test_v4.nori.json
     get_keys: [ left_blur_img_nid, left_sharp_img_nid, right_noisy_events_nid]
     return_keys: [ lq, gt, events]
 
