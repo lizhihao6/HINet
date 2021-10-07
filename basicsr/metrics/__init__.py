@@ -6,5 +6,6 @@
 # ------------------------------------------------------------------------
 from .niqe import calculate_niqe
 from .psnr_ssim import calculate_psnr, calculate_ssim
+from .iou import calculate_iou
 
-__all__ = ['calculate_psnr', 'calculate_ssim', 'calculate_niqe']
+__all__ = ['calculate_psnr', 'calculate_ssim', 'calculate_niqe', 'calculate_iou']

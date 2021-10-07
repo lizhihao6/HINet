@@ -45,6 +45,8 @@ datasets:
 # network structures
 network_g:
   type: AttentionUnet
+  num_in_ch: 3
+  num_out_ch: 1
 
 # path
 path:
@@ -85,9 +87,7 @@ val:
 
   metrics:
     psnr: # metric name, can be arbitrary
-      type: calculate_psnr
-      crop_border: 0
-      test_y_channel: false
+      type: calculate_iou
 
 # logging settings
 logger:

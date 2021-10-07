@@ -179,8 +179,8 @@ class SegmentationModel(BaseModel):
         self.idxes = idxes
 
     def grids_inverse(self):
-        preds = torch.zeros(self.original_size).to(self.device)
         b, c, h, w = self.original_size
+        preds = torch.zeros([b, 1, h, w]).to(self.device)
 
         print('...', self.device)
 
