@@ -61,6 +61,7 @@ class StereoImageDataset(data.Dataset):
             self.json = json.load(f)
         self.get_keys = opt['get_keys']
         self.return_keys = opt['return_keys']
+        self.data_type = opt['data_type']
         assert len(self.get_keys) == len(self.return_keys), 'return keys length should be as same as get keys'
         self.helper, self.nf = None, None
         for k in self.json[0]:
@@ -93,8 +94,8 @@ class StereoImageDataset(data.Dataset):
             for i in range(len(self.get_keys)):
                 self.get_keys[i] = self.get_keys[i].replace('left', 'right') if 'left' in self.get_keys[i] else \
                     self.get_keys[i].replace('right', 'left')
-        imgs = [self._load_img(meta[g]) if 'events' not in r else self._load_events(meta[g]) for g, r in
-                zip(self.get_keys, self.return_keys)]
+        imgs = [self._load_img(meta[g]) if t == 'img' else self._load_events(meta[g]) for g, t in
+                zip(self.get_keys, self.data_type)]
 
         # Load images and events. Dimension order: HWC; channel order: BGR;
         # image range: [0, 1], float32.
@@ -115,16 +116,16 @@ class StereoImageDataset(data.Dataset):
             imgs = img2tensor(imgs, bgr2rgb=True, float32=True)
 
             # chromatic transform
-            color_imgs = [imgs[i] for i, v in enumerate(self.return_keys) if 'image' in v][::-1]
-            for i, v in enumerate(self.return_keys):
-                if 'image' in v:
+            color_imgs = [imgs[i] for i, t in enumerate(self.data_type) if t == 'img'][::-1]
+            for i, t in enumerate(self.data_type):
+                if v == 'img':
                     imgs[i] = color_imgs.pop()
 
             # add noise
-            inputs = [imgs[i] for i, v in enumerate(self.return_keys) if 'image' in v and 'gt' not in v]
+            inputs = [imgs[i] for i, v in enumerate(self.return_keys) if self.data_type[i]=='img' and 'gt' not in v]
             inputs = [im + np.sqrt(self.opt['noise_std']) * (torch.randn_like(im) - 0.5) for im in inputs][::-1]
             for i, v in enumerate(self.return_keys):
-                if 'image' in v and 'gt' not in v:
+                if self.data_type[i] == 'img' and 'gt' not in v:
                     imgs[i] = inputs.pop()
 
         # for test or val
