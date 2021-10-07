@@ -76,9 +76,9 @@ train:
 
   # losses
   pixel_opt:
-    type: CharbonnierLoss
+    type: PSNRLoss
     loss_weight: 1.0
-    reduction: sum
+    reduction: mean
 
 # validation settings
 val:
