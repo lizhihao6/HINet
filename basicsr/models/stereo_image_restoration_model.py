@@ -364,6 +364,7 @@ class StereoImageRestorationModel(BaseModel):
                 gt_img = tensor2img([visuals['gt']], rgb2bgr=rgb2bgr)
                 del self.gt
             events_img = tensor2img(visuals['events'])
+            output_img = tensor2img(visuals['output'], rgb2bgr=rgb2bgr)
 
             # tentative for out of GPU memory
             del self.lq
@@ -385,6 +386,9 @@ class StereoImageRestorationModel(BaseModel):
                     save_events_img_path = osp.join(self.opt['path']['visualization'],
                                                     img_name,
                                                     f'{img_name}_{current_iter}_events.png')
+                    save_output_img_path = osp.join(self.opt['path']['visualization'],
+                                                    img_name,
+                                                    f'{img_name}_{current_iter}_output.png')
                 else:
 
                     save_img_path = osp.join(
@@ -396,10 +400,14 @@ class StereoImageRestorationModel(BaseModel):
                     save_events_img_path = osp.join(
                         self.opt['path']['visualization'], dataset_name,
                         f'{img_name}_events.png')
+                    save_output_img_path = osp.join(
+                        self.opt['path']['visualization'], dataset_name,
+                        f'{img_name}_output.png')
 
                 imwrite(sr_img, save_img_path)
                 imwrite(gt_img, save_gt_img_path)
                 imwrite(events_img, save_events_img_path)
+                imwrite(output_img, save_output_img_path)
 
             if with_metrics:
                 # calculate metrics
