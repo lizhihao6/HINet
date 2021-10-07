@@ -95,6 +95,8 @@ class AttentionUnet(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64, num_out_ch, kernel_size=1, stride=1, padding=0)
 
+        self.sigmoid = nn.sigmoid()
+
     def forward(self, x):
         ori_shape = x.shape[2:]
         tar_shape = ori_shape
@@ -143,5 +145,7 @@ class AttentionUnet(nn.Module):
         d1 = self.Conv_1x1(d2)
 
         d1 = d1[:, :, :ori_shape[0], :ori_shape[1]]
+
+        d1 = self.sigmoid(d1)
 
         return d1
