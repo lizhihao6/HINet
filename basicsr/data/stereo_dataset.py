@@ -118,7 +118,7 @@ class StereoImageDataset(data.Dataset):
             # chromatic transform
             color_imgs = [imgs[i] for i, t in enumerate(self.data_type) if t == 'img'][::-1]
             for i, t in enumerate(self.data_type):
-                if v == 'img':
+                if t == 'img':
                     imgs[i] = color_imgs.pop()
 
             # add noise
