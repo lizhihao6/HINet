@@ -359,12 +359,12 @@ class StereoImageRestorationModel(BaseModel):
                 self.grids_inverse()
 
             visuals = self.get_current_visuals()
-            sr_img = tensor2img([visuals['result']], rgb2bgr=rgb2bgr)
+            sr_img = tensor2img([visuals['lq']], rgb2bgr=rgb2bgr)
             if 'gt' in visuals:
                 gt_img = tensor2img([visuals['gt']], rgb2bgr=rgb2bgr)
                 del self.gt
             events_img = tensor2img(visuals['events'])
-            output_img = tensor2img(visuals['output'], rgb2bgr=rgb2bgr)
+            output_img = tensor2img(visuals['result'], rgb2bgr=rgb2bgr)
 
             # tentative for out of GPU memory
             del self.lq
