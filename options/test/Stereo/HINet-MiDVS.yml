@@ -39,7 +39,6 @@ path:
 # validation settings
 val:
   save_img: true
-  grids: false
   crop_size: 1024
   max_minibatch: 1
 
