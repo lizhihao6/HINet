@@ -332,7 +332,7 @@ class DVSImageRestorationModel(BaseModel):
         for idx, val_data in enumerate(dataloader):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             if img_name == 'cis_remap':
-                img_name = val_data['lq_path'].split('/')[-2]
+                img_name = val_data['lq_path'][0].split('/')[-2]
             # print(img_name, val_data['lq_path'])
             # if img_name[-1] != '9':
             #     continue
