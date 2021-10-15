@@ -288,6 +288,7 @@ class DVSImageRestorationModel(BaseModel):
 
     def single_image_inference(self, img, save_path):
         self.feed_data(data={'lq': img.unsqueeze(dim=0)})
+        print(self.lq.mean(), self.gt.mean())
 
         if self.opt['val'].get('grids') is not None:
             self.grids()
