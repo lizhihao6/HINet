@@ -16,6 +16,8 @@ def main(json_path='/data/MiDVS/test.json'):
     cis = [p.replace('events_remap.npy', 'cis_remap.png') for p in events]
     metas = []
     for e, c in zip(events, cis):
+        if not os.path.exists(e) or not os.path.exists(c) or not os.path.exists(c.replace('cis', 'baselines')):
+            continue
         metas.append(
             dict(
                 left_base_name=os.path.basename(e.split('/')[-2]),
