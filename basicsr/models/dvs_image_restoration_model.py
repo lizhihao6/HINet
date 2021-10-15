@@ -350,7 +350,7 @@ class DVSImageRestorationModel(BaseModel):
                 self.grids_inverse()
 
             visuals = self.get_current_visuals()
-            sr_img = tensor2img([visuals['result']], rgb2bgr=rgb2bgr)
+            src_img = tensor2img([visuals['lq']], rgb2bgr=rgb2bgr)
             if 'gt' in visuals:
                 gt_img = tensor2img([visuals['gt']], rgb2bgr=rgb2bgr)
                 del self.gt
@@ -395,13 +395,13 @@ class DVSImageRestorationModel(BaseModel):
                         self.opt['path']['visualization'], dataset_name,
                         f'{img_name}_output.png')
 
-                imwrite(sr_img, save_img_path)
+                imwrite(src_img, save_img_path)
                 imwrite(gt_img, save_gt_img_path)
                 imwrite(events_img, save_events_img_path)
                 imwrite(output_img, save_output_img_path)
 
                 if submit_to_ll3:
-                    s.submit(s_name, {'sr_img': sr_img, 'gt_img': gt_img, 'events_img': events_img, 'output_img': output_img}, post_key=img_name)
+                    s.submit(s_name, {'src_img': src_img, 'gt_img': gt_img, 'events_img': events_img, 'output_img': output_img}, post_key=img_name)
 
             if with_metrics:
                 # calculate metrics
