@@ -12,7 +12,7 @@ from tqdm import tqdm
 import json
 
 def main(json_path='/data/MiDVS/test.json'):
-    events = [str(s) for s in Path('/data/MiDVS/*/events_remap.npy')]
+    events = [str(s) for s in Path('/data/MiDVS/').glob('*/events_remap.npy')]
     cis = [p.replace('events_remap.npy', 'cis_remap.png') for p in events]
     metas = []
     for e, c in zip(events, cis):
