@@ -339,8 +339,6 @@ class DVSImageRestorationModel(BaseModel):
 
             # print('val_data .. ', val_data['lq'].size(), val_data['gt'].size())
             self.feed_data(val_data)
-            print('lq', self.lq.max(), self.lq.min(), self.lq.min())
-            print('gt', self.gt.max(), self.gt.min(), self.gt.mean())
 
             if self.opt['val'].get('grids') is not None:
                 self.grids()

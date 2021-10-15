@@ -74,6 +74,7 @@ class StereoImageDataset(data.Dataset):
                 self.nf = nori.Fetcher()
 
     def _load_img(self, im_path):
+        print(im_path)
         if ',' in im_path:
             return self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
         else:
