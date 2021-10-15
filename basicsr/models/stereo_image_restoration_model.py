@@ -425,7 +425,7 @@ class StereoImageRestorationModel(BaseModel):
                     for name, opt_ in opt_metric.items():
                         metric_type = opt_.pop('type')
                         self.metric_results[name] += getattr(
-                            metric_module, metric_type)(sr_img, gt_img, **opt_)
+                            metric_module, metric_type)(src_img, gt_img, **opt_)
                 else:
                     for name, opt_ in opt_metric.items():
                         metric_type = opt_.pop('type')
