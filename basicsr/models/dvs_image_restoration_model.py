@@ -340,12 +340,11 @@ class DVSImageRestorationModel(BaseModel):
             # print('val_data .. ', val_data['lq'].size(), val_data['gt'].size())
             self.feed_data(val_data)
 
+            # todo check grids, it will make lq to zero
             if self.opt['val'].get('grids') is not None:
                 self.grids()
 
-            print(self.lq.mean(), self.gt.mean())
-            # self.test()
-            self.output = self.lq
+            self.test()
 
             if self.opt['val'].get('grids') is not None:
                 self.grids_inverse()
