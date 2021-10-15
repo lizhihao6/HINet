@@ -59,6 +59,8 @@ class StereoImageDataset(data.Dataset):
 
         with open(opt['json_file'], 'r+') as f:
             self.json = json.load(f)
+        if 'test' in opt['json_file']:
+            self.json = self.json[:300]
         self.get_keys = opt['get_keys']
         self.return_keys = opt['return_keys']
         self.data_type = opt['data_type']

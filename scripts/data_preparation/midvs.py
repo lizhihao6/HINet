@@ -9,29 +9,23 @@ from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
+import json
 
-
-# from basicsr.utils.create_lmdb import create_lmdb_for_midvs
-
-
-def main():
-    # create_lmdb_for_midvs()
-    for _p in tqdm(os.listdir("./datasets/MiDVS/")):
-        p = os.path.join("./datasets/MiDVS/", _p)
-        if "lmdb" in _p or len([i for i in os.listdir(p) if i.endswith("txt")]) == 0:
-            continue
-        events = np.zeros([720, 960])
-        for t in [str(s) for s in Path(p).glob("*.txt")]:
-            with open(t, "r+") as f:
-                for l in f.readlines():
-                    y, x, e = l.split("\n")[0].split(" ")[1:]
-                    y, x, e = int(float(y)), int(float(x)), int(float(e))
-                    if e == 0:
-                        events[y, x] -= 0.2
-                    else:
-                        events[y, x] += 0.2
-        np.save("./datasets/MiDVS/events/{}.npy".format(p.split("/")[-1]), events)
-
+def main(json_path='/data/MiDVS/test.json'):
+    events = [str(s) for s in Path('/data/MiDVS/*/events_remap.npy')]
+    cis = [p.replace('events_remap.npy', 'cis_remap.png') for p in events]
+    metas = []
+    for e, c in zip(events, cis):
+        metas.append(
+            dict(
+                left_base_name=os.path.basename(e.split('/')[-2]),
+                right_base_name=os.path.basename(e.split('/')[-2]),
+                left_blur_img_path = c,
+                left_sharp_img_path = c.replace('cis', 'baselines'),
+                right_noisy_events_path = e)
+        )
+    with open(json_path, 'w+') as f:
+        json.dump(metas, f)
 
 if __name__ == '__main__':
     main()
