@@ -343,7 +343,7 @@ class DVSImageRestorationModel(BaseModel):
                 self.grids()
 
             # self.test()
-            self.result = self.lq
+            self.output = self.lq
 
             if self.opt['val'].get('grids') is not None:
                 self.grids_inverse()
