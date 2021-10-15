@@ -52,6 +52,10 @@ val:
       type: calculate_ssim
       crop_border: 0
       test_y_channel: false
+  
+  supershow:
+    topic: single_deblur_ret
+    name: dvs_calibration_v2_left_cis_right_noisy
 
 # dist training settings
 dist_params:

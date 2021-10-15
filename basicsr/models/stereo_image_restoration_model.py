@@ -343,6 +343,12 @@ class StereoImageRestorationModel(BaseModel):
 
         cnt = 0
 
+        submit_to_ll3 = self.opt['val'].get('supershow') is not None
+        if submit_to_ll3:
+            from balls.supershow2 import Submitter
+            s = Submitter(self.opt['val']['supershow'].get('topic'))
+            s_name = Submitter(self.opt['val']['supershow'].get('name'))
+        
         for idx, val_data in enumerate(dataloader):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             # if img_name[-1] != '9':
@@ -408,6 +414,9 @@ class StereoImageRestorationModel(BaseModel):
                 imwrite(gt_img, save_gt_img_path)
                 imwrite(events_img, save_events_img_path)
                 imwrite(output_img, save_output_img_path)
+
+                if submit_to_ll3:
+                    s.submit(s_name, {'sr_img': sr_img, 'gt_img': gt_img, 'events_img': events_img, 'output_img': output_img}, post_key=img_name)
 
             if with_metrics:
                 # calculate metrics
