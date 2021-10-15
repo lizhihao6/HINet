@@ -139,6 +139,8 @@ class StereoImageDataset(data.Dataset):
             imgs = [normalize(im, self.mean, self.std, inplace=True) for im in imgs]
 
         return_dict = {v: imgs[i] for i, v in enumerate(self.return_keys)}
+        for k in return_dict:
+            print(k, return_dict[k].max(), return_dict[k].min())
         for g, r in zip(self.get_keys, self.return_keys):
             return_dict[r + '_path'] = meta[g]
         return return_dict
