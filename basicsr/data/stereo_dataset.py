@@ -85,9 +85,9 @@ class StereoImageDataset(data.Dataset):
             return helper.download(events_path, 'numpy').astype(np.float32)
         elif ',' in events_path:
             return np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(
-                np.float32) / 255. - 127. / 255.
+                np.float32) - 127.
         else:
-            return np.load(events_path).astype(np.float32)/255.
+            return np.load(events_path).astype(np.float32)
 
     def __getitem__(self, index):
         scale = self.opt['scale']
