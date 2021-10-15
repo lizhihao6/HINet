@@ -347,7 +347,7 @@ class StereoImageRestorationModel(BaseModel):
         if submit_to_ll3:
             from balls.supershow2 import Submitter
             s = Submitter(self.opt['val']['supershow'].get('topic'))
-            s_name = Submitter(self.opt['val']['supershow'].get('name'))
+            s_name = self.opt['val']['supershow'].get('name')
         
         for idx, val_data in enumerate(dataloader):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
