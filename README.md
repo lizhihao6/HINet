@@ -3,7 +3,8 @@
 git clone https://git-core.megvii-inc.com/lizhihao/dvs-deblur.git
 cd HINet
 pip install -r requirements.txt
-python setup.py develop --no_cuda_ext
+export CUDA_HOME=XXX
+python setup.py develop
 # download experiments/pretrained_models/DVS_HINet-GoPro.pth model 
 # from https://box.nju.edu.cn/f/4accea732b5e418193e8/
 # or
@@ -72,19 +73,20 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 
 * prepare datasets
   ``` bash
+  # prepare training dataset
   oss cp s3://lzh-share/stereo_blur_data/train_v4.nori.json /data/stereo_blur_data/train_v4.nori.json
   oss cp s3://lzh-share/stereo_blur_data/test_v4.nori.json /data/stereo_blur_data/test_v4.nori.json
-  oss sync s3://lzh-share/stereo_blur_data/test /data/stereo_blur_data/test
+  # prepare test dataset
+  oss sync s3://lzh-share/MiDVS  /data/MiDVS
   ln -s /data/stereo_blur_data datasets/stereo_blur_data
   ```
 
 * eval
-    * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to
-      ./experiments/pretrained_models/HINet-GoPro.pth
+    * oss cp /lzh/share/models/net_g_40000.pth ./experiments/Stereo-DVS-HINet/models/net_g_40000.pth
     * ```python basicsr/test.py -opt options/test/Stereo/HINet-MiDVS.yml  ```
 
 * train
-
+    * oss cp /lzh/share/models/HINet-REDS.pth ./experiments/pretrained_models/HINet-REDS.pth
     * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/Stereo/DVS_HINet.yml --launcher pytorch```
 
 </details>
