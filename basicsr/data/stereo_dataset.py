@@ -103,6 +103,7 @@ class StereoImageDataset(data.Dataset):
 
         # Load images and events. Dimension order: HWC; channel order: BGR;
         # image range: [0, 1], float32.
+        # events range: [-1, 1] float32.
 
         # augmentation for training
         if self.opt['phase'] == 'train':
