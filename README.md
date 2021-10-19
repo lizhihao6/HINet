@@ -81,10 +81,10 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 * eval
     * download [pretrained model](https://drive.google.com/file/d/1dw8PKVkLfISzNtUu3gqGh83NBO83ZQ5n/view?usp=sharing) to
       ./experiments/pretrained_models/HINet-GoPro.pth
-    * ```python basicsr/test.py -opt options/test/GoPro/HINet-GoPro.yml  ```
+    * ```python basicsr/test.py -opt options/test/Stereo/HINet-MiDVS.yml  ```
 
 * train
 
-    * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/GoPro/HINet.yml --launcher pytorch```
+    * ``` python -m torch.distributed.launch --nproc_per_node=8 --master_port=4321 basicsr/train.py -opt options/train/Stereo/DVS_HINet.yml --launcher pytorch```
 
 </details>
