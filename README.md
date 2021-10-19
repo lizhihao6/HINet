@@ -84,6 +84,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   ```
 
 * eval
+    !! notice: dataloader for events has been changed, need retrain
     * oss cp /lzh/share/models/net_g_40000.pth ./experiments/Stereo-DVS-HINet/models/net_g_40000.pth
     * ```python basicsr/test.py -opt options/test/Stereo/HINet-MiDVS.yml  ```
 
