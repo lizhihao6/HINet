@@ -78,7 +78,7 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
   oss cp s3://lzh-share/stereo_blur_data/test_v4.nori.json /data/stereo_blur_data/test_v4.nori.json
   ln -s /data/stereo_blur_data datasets/stereo_blur_data
   # prepare test dataset
-  oss sync s3://lzh-share/MiDVS  /data/MiDVS
+  oss sync s3://lzh-share/MiDVS /data/MiDVS
   ```
 
 * eval
