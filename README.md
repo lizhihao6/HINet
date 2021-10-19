@@ -3,7 +3,9 @@
 git clone https://git-core.megvii-inc.com/lizhihao/dvs-deblur.git
 cd HINet
 pip install -r requirements.txt
-export CUDA_HOME=XXX
+CUDA_HOME=/usr/local/cuda \
+CUDNN_INCLUDE_DIR=/usr/local/cuda \
+CUDNN_LIB_DIR=/usr/local/cuda \
 python setup.py develop
 # download experiments/pretrained_models/DVS_HINet-GoPro.pth model 
 # from https://box.nju.edu.cn/f/4accea732b5e418193e8/
