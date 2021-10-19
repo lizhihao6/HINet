@@ -16,7 +16,6 @@ def main(json_path='/data/MiDVS/test.json'):
     cis = [p.replace('events_remap.npy', 'and_Blur(original).png') for p in events]
     metas = []
     for e, c in zip(events, cis):
-        print(e)
         sharp_path = c.replace('and_Blur(original).png', 'and_Deblur(output).png')
         if not os.path.exists(e) or not os.path.exists(c) or not os.path.exists(sharp_path):
             continue
