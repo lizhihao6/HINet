@@ -72,8 +72,8 @@ echo "alias rr='rlaunch --cpu=48 --gpu=8 --memory=169152 --replica-restart=on-fa
 
 * prepare datasets
   ``` bash
-  oss cp s3://lzh-share/stereo_blur_data/train.v4.nori.json /data/stereo_blur_data/train.v4.nori.json
-  oss cp s3://lzh-share/stereo_blur_data/test.v4.nori.json /data/stereo_blur_data/test.v4.nori.json
+  oss cp s3://lzh-share/stereo_blur_data/train_v4.nori.json /data/stereo_blur_data/train_v4.nori.json
+  oss cp s3://lzh-share/stereo_blur_data/test_v4.nori.json /data/stereo_blur_data/test_v4.nori.json
   oss sync s3://lzh-share/stereo_blur_data/test /data/stereo_blur_data/test
   ln -s /data/stereo_blur_data datasets/stereo_blur_data
   ```
