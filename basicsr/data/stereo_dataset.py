@@ -75,19 +75,21 @@ class StereoImageDataset(data.Dataset):
 
     def _load_img(self, im_path):
         if ',' in im_path:
-            return self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
+            im =  self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
         else:
-            return cv2.imread(im_path).astype(np.float32) / 255.
+            im = cv2.imread(im_path).astype(np.float32) / 255.
+        cv2.resize(im, (720, 960, 3))
+        return im
 
     def _load_events(self, events_path):
         if 's3' in events_path:
             helper = OSSHelper()
-            events = helper.download(events_path, 'numpy').astype(np.float32)
+            events = helper.download(events_path, 'numpy').astype(np.float32)/255.
         elif ',' in events_path:
             events = np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(
-                np.float32) - 127.
+                np.float32)/255. - 127./255.
         else:
-            events = np.load(events_path).astype(np.float32)
+            events = np.load(events_path).astype(np.float32)/255.
         events = np.clip(events, -1, 1)
         return events
 
