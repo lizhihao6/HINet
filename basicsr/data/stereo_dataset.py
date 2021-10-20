@@ -74,6 +74,7 @@ class StereoImageDataset(data.Dataset):
                 self.nf = nori.Fetcher()
 
     def _load_img(self, im_path):
+        print(im_path, flush=True)
         if ',' in im_path:
             im =  self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
         else:
@@ -82,7 +83,6 @@ class StereoImageDataset(data.Dataset):
         return im
 
     def _load_events(self, events_path):
-        print(events_path, flush=True)
         if 's3' in events_path:
             helper = OSSHelper()
             events = helper.download(events_path, 'numpy').astype(np.float32)/255.
