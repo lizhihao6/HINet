@@ -78,7 +78,7 @@ class StereoImageDataset(data.Dataset):
             im =  self.imdecode(self.nf.get(im_path)).astype(np.float32) / 255.
         else:
             im = cv2.imread(im_path).astype(np.float32) / 255.
-        cv2.resize(im, (960, 720))
+        im = cv2.resize(im, (960, 720))
         return im
 
     def _load_events(self, events_path):
