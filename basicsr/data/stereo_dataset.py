@@ -91,6 +91,7 @@ class StereoImageDataset(data.Dataset):
                 np.float32)/255. - 127./255.
         else:
             events = np.load(events_path).astype(np.float32)
+            print(events.max(), events.min())
         # events = np.clip(events, -1, 1)
         return events
 
