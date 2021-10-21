@@ -90,7 +90,7 @@ class StereoImageDataset(data.Dataset):
             events = np.concatenate([self.imdecode(self.nf.get(nid)) for nid in events_path.split('|')], axis=2).astype(
                 np.float32)/255. - 127./255.
         else:
-            events = np.load(events_path).astype(np.float32)
+            events = np.load(events_path).astype(np.float32)/255.
             print(events.max(), events.min())
         # events = np.clip(events, -1, 1)
         return events
