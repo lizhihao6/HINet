@@ -6,12 +6,13 @@
 # ------------------------------------------------------------------------
 
 import importlib
-import numpy as np
 import random
-import torch
-import torch.utils.data
 from functools import partial
 from os import path as osp
+
+import numpy as np
+import torch
+import torch.utils.data
 
 from basicsr.data.prefetch_dataloader import PrefetchDataLoader
 from basicsr.utils import get_root_logger, scandir
@@ -103,7 +104,18 @@ def create_dataloader(dataset,
         dataloader_args['worker_init_fn'] = partial(
             worker_init_fn, num_workers=num_workers, rank=rank,
             seed=seed) if seed is not None else None
-    elif phase in ['val', 'test']:  # validation
+    elif phase == 'val':
+        dataloader_args = dict(
+            dataset=dataset,
+            batch_size=1,
+            shuffle=False,
+            num_workers=1,
+            sampler=sampler,
+            drop_last=True)
+        dataloader_args['worker_init_fn'] = partial(
+            worker_init_fn, num_workers=1, rank=rank,
+            seed=seed) if seed is not None else None
+    elif phase == 'test':  # validation
         dataloader_args = dict(
             dataset=dataset, batch_size=1, shuffle=False, num_workers=0)
     else:
@@ -111,6 +123,8 @@ def create_dataloader(dataset,
                          "Supported ones are 'train', 'val' and 'test'.")
 
     dataloader_args['pin_memory'] = dataset_opt.get('pin_memory', False)
+    collate_fn = dataset.collate_fn if hasattr(dataset, 'collate_fn') else None
+    dataloader_args['collate_fn'] = collate_fn
 
     prefetch_mode = dataset_opt.get('prefetch_mode')
     if prefetch_mode == 'cpu':  # CPUPrefetcher

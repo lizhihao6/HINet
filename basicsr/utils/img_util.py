@@ -4,10 +4,11 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import math
-import numpy as np
 import os
+
+import cv2
+import numpy as np
 import torch
 from torchvision.utils import make_grid
 
@@ -130,12 +131,13 @@ def imfrombytes(content, flag='color', float32=False):
         img = img.astype(np.float32) / 255.
     return img
 
+
 def padding(img_lq, img_gt, gt_size):
     h, w, _ = img_lq.shape
 
     h_pad = max(0, gt_size - h)
     w_pad = max(0, gt_size - w)
-    
+
     if h_pad == 0 and w_pad == 0:
         return img_lq, img_gt
 
@@ -143,6 +145,7 @@ def padding(img_lq, img_gt, gt_size):
     img_gt = cv2.copyMakeBorder(img_gt, 0, h_pad, 0, w_pad, cv2.BORDER_REFLECT)
     # print('img_lq', img_lq.shape, img_gt.shape)
     return img_lq, img_gt
+
 
 def imwrite(img, file_path, params=None, auto_mkdir=True):
     """Write image to file.
@@ -183,4 +186,4 @@ def crop_border(imgs, crop_border):
             ]
         else:
             return imgs[crop_border:-crop_border, crop_border:-crop_border,
-                        ...]
+                   ...]

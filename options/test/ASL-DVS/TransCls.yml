@@ -1,0 +1,63 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2021 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: ASL-DVS-TransCls
+model_type: TransClsModel
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 100
+classes: ['a', 'b', 'c', 'd', 'e', 'f', 'g',
+          'h', 'i', 'k', 'l', 'm', 'n',
+          'o', 'p', 'q', 'r', 's', 't',
+          'u', 'v', 'w', 'x', 'y']
+point_num: &point_num  1024
+height: &height 180
+width: &width 240
+
+
+# dataset and data loader settings
+datasets:
+
+  test:
+    name: ASL-DVS
+    type: EventsClsDataset
+    h5: /lzh/datasets/DVS/ASL-DVS/asl_dvs.h5
+    labels: /lzh/datasets/DVS/ASL-DVS/test.json
+    sample_fn: all
+    sample_num: -1
+
+# network structures
+network_g:
+  type: TransCls
+  cls_num: 24
+  point_num: *point_num
+  hidden_ch: 512
+  k_nearest: 16
+  block_num: 4
+
+# path
+path:
+  pretrain_network_g: ./experiments/ASL-DVS-TransCls/models/net_g_24000.pth
+  strict_load_g: true
+  resume_state: ~
+
+# validation settings
+val:
+  save_img: true
+  height: *height
+  width: *width
+  split: true
+  sample_num: *point_num
+  max_minibatch: 48
+
+  metrics:
+    acc: # metric name, can be arbitrary
+      type: calculate_acc
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

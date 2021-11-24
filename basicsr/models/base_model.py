@@ -6,9 +6,10 @@
 # ------------------------------------------------------------------------
 import logging
 import os
-import torch
 from collections import OrderedDict
 from copy import deepcopy
+
+import torch
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 from basicsr.models import lr_scheduler as lr_scheduler
@@ -55,7 +56,7 @@ class BaseModel():
             return self.dist_validation(dataloader, current_iter, tb_logger, save_img, rgb2bgr, use_image)
         else:
             return self.nondist_validation(dataloader, current_iter, tb_logger,
-                                    save_img, rgb2bgr, use_image)
+                                           save_img, rgb2bgr, use_image)
 
     def get_current_log(self):
         return self.log_dict
@@ -72,6 +73,7 @@ class BaseModel():
         if self.opt['dist']:
             find_unused_parameters = self.opt.get('find_unused_parameters',
                                                   False)
+            net = torch.nn.SyncBatchNorm.convert_sync_batchnorm(net)
             net = DistributedDataParallel(
                 net,
                 device_ids=[torch.cuda.current_device()],

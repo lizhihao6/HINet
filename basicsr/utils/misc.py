@@ -4,12 +4,13 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import numpy as np
 import os
 import random
 import time
-import torch
 from os import path as osp
+
+import numpy as np
+import torch
 
 from .dist_util import master_only
 from .logger import get_root_logger
@@ -98,6 +99,7 @@ def scandir(dir_path, suffix=None, recursive=False, full_path=False):
 
     return _scandir(dir_path, suffix=suffix, recursive=recursive)
 
+
 def scandir_SIDD(dir_path, keywords=None, recursive=False, full_path=False):
     """Scan a directory to find the interested files.
 
@@ -139,6 +141,7 @@ def scandir_SIDD(dir_path, keywords=None, recursive=False, full_path=False):
                     continue
 
     return _scandir(dir_path, keywords=keywords, recursive=recursive)
+
 
 def check_resume(opt, resume_iter):
     """Check resume states and pretrain_network paths.

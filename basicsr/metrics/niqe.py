@@ -4,8 +4,9 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import math
+
+import cv2
 import numpy as np
 from scipy.ndimage.filters import convolve
 from scipy.special import gamma
@@ -27,15 +28,15 @@ def estimate_aggd_param(block):
     gam = np.arange(0.2, 10.001, 0.001)  # len = 9801
     gam_reciprocal = np.reciprocal(gam)
     r_gam = np.square(gamma(gam_reciprocal * 2)) / (
-        gamma(gam_reciprocal) * gamma(gam_reciprocal * 3))
+            gamma(gam_reciprocal) * gamma(gam_reciprocal * 3))
 
-    left_std = np.sqrt(np.mean(block[block < 0]**2))
-    right_std = np.sqrt(np.mean(block[block > 0]**2))
+    left_std = np.sqrt(np.mean(block[block < 0] ** 2))
+    right_std = np.sqrt(np.mean(block[block > 0] ** 2))
     gammahat = left_std / right_std
-    rhat = (np.mean(np.abs(block)))**2 / np.mean(block**2)
-    rhatnorm = (rhat * (gammahat**3 + 1) *
-                (gammahat + 1)) / ((gammahat**2 + 1)**2)
-    array_position = np.argmin((r_gam - rhatnorm)**2)
+    rhat = (np.mean(np.abs(block))) ** 2 / np.mean(block ** 2)
+    rhatnorm = (rhat * (gammahat ** 3 + 1) *
+                (gammahat + 1)) / ((gammahat ** 2 + 1) ** 2)
+    array_position = np.argmin((r_gam - rhatnorm) ** 2)
 
     alpha = gam[array_position]
     beta_l = left_std * np.sqrt(gamma(1 / alpha) / gamma(3 / alpha))
@@ -128,9 +129,9 @@ def niqe(img,
                 # process ecah block
                 block = img_nomalized[idx_h * block_size_h //
                                       scale:(idx_h + 1) * block_size_h //
-                                      scale, idx_w * block_size_w //
-                                      scale:(idx_w + 1) * block_size_w //
-                                      scale]
+                                            scale, idx_w * block_size_w //
+                                                   scale:(idx_w + 1) * block_size_w //
+                                                         scale]
                 feat.append(compute_feature(block))
 
         distparam.append(np.array(feat))

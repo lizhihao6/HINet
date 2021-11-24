@@ -5,9 +5,10 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 # Modified from https://github.com/open-mmlab/mmcv/blob/master/mmcv/video/optflow.py  # noqa: E501
+import os
+
 import cv2
 import numpy as np
-import os
 
 
 def flowread(flow_path, quantize=False, concat_axis=0, *args, **kwargs):

@@ -4,8 +4,9 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import cv2
 import random
+
+import cv2
 
 
 def mod_crop(img, scale):
@@ -177,6 +178,7 @@ def img_rotate(img, angle, center=None, scale=1.0):
     rotated_img = cv2.warpAffine(img, matrix, (w, h))
     return rotated_img
 
+
 def data_augmentation(image, mode):
     """
     Performs data augmentation of the input image
@@ -224,10 +226,11 @@ def data_augmentation(image, mode):
 
     return out
 
+
 def random_augmentation(*args):
     out = []
-    if random.randint(0,1) == 1:
-        flag_aug = random.randint(1,7)
+    if random.randint(0, 1) == 1:
+        flag_aug = random.randint(1, 7)
         for data in args:
             out.append(data_augmentation(data, flag_aug).copy())
     else:

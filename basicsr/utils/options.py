@@ -4,9 +4,10 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
-import yaml
 from collections import OrderedDict
 from os import path as osp
+
+import yaml
 
 
 def ordered_yaml():
@@ -47,7 +48,6 @@ def parse(opt_path, is_train=True):
     with open(opt_path, mode='r') as f:
         Loader, _ = ordered_yaml()
         opt = yaml.load(f, Loader=Loader)
-
     opt['is_train'] = is_train
 
     # datasets

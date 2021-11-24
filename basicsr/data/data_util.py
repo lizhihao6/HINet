@@ -4,10 +4,11 @@
 # Modified from BasicSR (https://github.com/xinntao/BasicSR)
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
+from os import path as osp
+
 import cv2
 import numpy as np
 import torch
-from os import path as osp
 from torch.nn import functional as F
 
 from basicsr.data.transforms import mod_crop
@@ -338,3 +339,33 @@ def duf_downsample(x, kernel_size=13, scale=4):
     if squeeze_flag:
         x = x.squeeze(0)
     return x
+
+
+def events_augmentation(events):
+    # flip t
+    # if np.random.random() < 0.5:
+    #     events = events[::-1]
+    #     events[:, 3] = events[:, 3][::-1].copy()
+    # flip x
+    if np.random.random() < 0.5:
+        events[:, 0] = 1-events[:, 0].copy()
+    # flip y
+    # if np.random.random() < 0.5:
+    #     events[:, 1] = 1-events[:, 1].copy()
+    # rot90
+    # if np.random.random() < 0.5:
+    #     flip_mode = np.random.random()
+    #     x, y = events[:, 0].copy(), events[:, 1].copy()
+    #     if flip_mode < 0.25:
+    #         events[:, 0] = 1 - y
+    #         events[:, 1] = x
+    #     elif flip_mode < 0.5:
+    #         events[:, 0] = 1 - x
+    #         events[:, 1] = 1 - y
+    #     elif flip_mode < 0.75:
+    #         events[:, 0] = 1 - x
+    #         events[:, 1] = 1 - y
+    #     else:
+    #         events[:, 0] = y
+    #         events[:, 1] = 1 - x
+    return events

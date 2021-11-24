@@ -5,13 +5,13 @@
 # Copyright 2018-2020 BasicSR Authors
 # ------------------------------------------------------------------------
 import math
+
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
 from torch.nn import init as init
 from torch.nn.modules.batchnorm import _BatchNorm
 
-from basicsr.utils import get_root_logger
 
 # try:
 #     from basicsr.models.ops.dcn import (ModulatedDeformConvPack,
@@ -225,7 +225,7 @@ def pixel_unshuffle(x, scale):
         Tensor: the pixel unshuffled feature.
     """
     b, c, hh, hw = x.size()
-    out_channel = c * (scale**2)
+    out_channel = c * (scale ** 2)
     assert hh % scale == 0 and hw % scale == 0
     h = hh // scale
     w = hw // scale
@@ -259,3 +259,11 @@ def pixel_unshuffle(x, scale):
 #         return modulated_deform_conv(x, offset, mask, self.weight, self.bias,
 #                                      self.stride, self.padding, self.dilation,
 #                                      self.groups, self.deformable_groups)
+
+
+class SwapAxes(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return x.transpose(1, 2)
