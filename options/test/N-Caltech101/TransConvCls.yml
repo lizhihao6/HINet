@@ -1,0 +1,64 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2021 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# general settings
+name: N-Caltech101-TransConvCls
+model_type: TransClsModel
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+point_num: &point_num  3072
+height: &height 128
+width: &width 128
+
+
+# dataset and data loader settings
+datasets:
+
+  test:
+    name: N-Caltech101
+    type: EventsClsDataset
+    h5: /lzh/datasets/DVS/N-Caltech101/caltech101.h5
+    labels: /lzh/datasets/DVS/N-Caltech101/test.json
+    sample_fn: crop
+    sample_num: *point_num
+
+# network structures
+network_g:
+  type: TransConvCls
+  cls_num: 101
+  point_num: *point_num
+  h: *height
+  w: *width
+  hidden_ch: 128
+  k_nearest: 16
+  block_num: 3
+  # global transformer config
+  global_ratios: [-1, 8, 4, -1]
+  # conv transformer config
+  conv: [64, 128, 256, -1]
+
+# path
+path:
+  pretrain_network_g: experiments/N-Caltech101-TransConvCls/models/net_g_latest.pth
+  strict_load_g: true
+  resume_state: ~
+
+# validation settings
+val:
+  save_img: false
+  height: *height
+  width: *width
+  split: true
+  sample_num: *point_num
+  max_minibatch: 48
+
+  metrics:
+    acc: # metric name, can be arbitrary
+      type: calculate_acc
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

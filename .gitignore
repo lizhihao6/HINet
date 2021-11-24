@@ -6,3 +6,11 @@ datasets/SIDD/
 experiments/
 results/
 .idea/
+.bkp
+tb_logger
+figures
+emd_linear
+.eggs
+build
+.ipynb_checkpoints
+basicsr.egg-info

@@ -1,0 +1,117 @@
+# ------------------------------------------------------------------------
+# Copyright (c) 2021 megvii-model. All Rights Reserved.
+# ------------------------------------------------------------------------
+# Modified from BasicSR (https://github.com/xinntao/BasicSR)
+# Copyright 2018-2020 BasicSR Authors
+# ------------------------------------------------------------------------
+# dataset size 8000
+# general settings
+name: EventZoom-x2-TransConvSR
+model_type: TransSRModel
+num_gpu: 2  # set num_gpu: 0 for cpu mode
+manual_seed: 100
+point_num: &point_num  512
+height: &height 62
+width: &width 111
+voxel: false
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: EventZoom-x2
+    type: EventsSRDataset
+    h5: /lzh/datasets/DVS/EventZoom/eventzoom.h5
+    maplist: /lzh/datasets/DVS/EventZoom/eventzoom.map.h5
+    labels: /lzh/datasets/DVS/EventZoom/train_2x.json
+    sample_fn: crop
+    sample_num: *point_num
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 8
+    dataset_enlarge_ratio: 1000
+    prefetch_mode: ~
+
+  val:
+    name: EventZoom-x2
+    type: EventsVoxelSRDataset
+    h5: /lzh/datasets/DVS/EventZoom/eventzoom.h5
+    maplist: /lzh/datasets/DVS/EventZoom/eventzoom.map.h5
+    voxel_annotation: /lzh/datasets/DVS/EventZoom/eventzoom.voxel.json
+    labels: /lzh/datasets/DVS/EventZoom/test_2x.json
+    sample_fn: all
+    sample_num: -1
+    return_events: true
+
+# network structures
+network_g:
+  type: TransConvSR
+  up_scale: 4
+  point_num: *point_num
+  h: *height
+  w: *width
+  out_ch: 32
+  hidden_ch: 128
+  k_nearest: 16
+  block_num: 2
+  # global transformer config
+  global_ratios: [-1, -1, -1]
+  # conv transformer config
+  conv: [64, 128, 256]
+
+# path
+path:
+  pretrain_network_g: .bkp/EventZoom-x2-TransConvSR/models/net_g_latest.pth
+  strict_load_g: false
+  resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: SGD
+    lr: !!float 1e-2
+#    weight_decay: 0
+#    betas: [0.9, 0.999]
+    momentum: 0.9
+    weight_decay: !!float 1e-4
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [15120, 20160]
+    gamma: 0.1
+
+  total_iter: 25200
+  warmup_iter: -1 # no warm up
+
+# validation settings
+val:
+  val_freq: !!float 2e4
+  save_img: true
+  frames: 16
+  save_freq: 600
+  save_events: false
+  height: *height
+  width: *width
+  split: true
+  sample_num: *point_num
+  max_minibatch: 10
+  cd_input_num: 1024
+
+  metrics:
+    mse: # metric name, can be arbitrary
+      type: ~
+
+# logging settings
+logger:
+  print_freq: 50
+  save_checkpoint_freq: !!float 2e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
